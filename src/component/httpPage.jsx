@@ -100,56 +100,27 @@ function HttpPage(props) {
         Request.get("/appConfig").then(res => {
             if (res.data.response_code == 0) {
                 setAppConfig(res.data.response_object.api_service_config);
-                let tableData = res.data.response_object.api_service_config.map((p) => ({
-                    "port": p.listen_port,
-                    "type": "HTTP",
-                }));
+                const set=new Map();
+                let tableData = res.data.response_object.api_service_config.flatMap((p) => {
+                    // "port": p.listen_port,
+                    // "type": "HTTP",
+                    return p.service_config.routes.map((item)=>({
+                     "port": p.listen_port,
+                     "type": "HTTP",
+                     "pathPrefix":item.matcher.prefix,
+                     "routeId":item.route_id
+                    }));
+                });
                 setTableData(tableData);
             }
         });
 
     }
  
-    const isWx = () => {
-        var ua = navigator.userAgent;
-        var isWeixin = ua.indexOf('MicroMessenger') != -1;
-        if (isWeixin) {
-            setIsModalVisible(true);
-        }
-        return isWeixin;
-    }
-
-
-    const CardItem = (icon, button) => {
-        return (
-            <Card>
-                <Row style={{ paddingBottom: "20px" }} align="center">
-                    {icon}
-                </Row>
-                {button}
-            </Card>
-        );
-    }
-    const handleOk = () => {
-        setIsModalVisible(false);
-    };
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-    };
-
-
-    const header = () => {
-        return (
-            <>
-                <h1>应用下载-沙雕图</h1>
-            </>
-        );
-    }
     const detailClick=(record)=>{
-        const { port } = record
+        const { port,routeId } = record
         let { history } = props;
-        history.push('/detailPage?port=' + port);
+        history.push('/configPage?port=' + port+"&routeId="+routeId);
     }
     const columns = [
         {
@@ -157,12 +128,17 @@ function HttpPage(props) {
             dataIndex: 'port',
             key:"port",
             width: '30%',
+          
         },
         {
             title: 'Type',
             dataIndex: 'type',
             key:"type",
 
+        },{
+            title: 'Path Prefix',
+            dataIndex: 'pathPrefix',
+            key:"pathPrefix",
         },
         {
             title: 'Detail',
@@ -186,7 +162,7 @@ function HttpPage(props) {
 
                         <Col xs={{ span: 24 }} >
                             <CardDiv title="Connection Listener" bordered={false}>
-                                <Table columns={columns} dataSource={tableData} onChange={onChange}   rowKey="port" />
+                                <Table columns={columns} dataSource={tableData} onChange={onChange}   rowKey="routeId" />
                             </CardDiv>
                         </Col>
 

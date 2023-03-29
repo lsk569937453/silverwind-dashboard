@@ -1,12 +1,7 @@
 import logo from './logo.svg';
 import { React, Component } from 'react';
-import LoginPage from './component/login'
 
 import './App.css';
-import Home from './component/home'
-import HomeNew from './component/homeNew'
-import Topics from './component/topics'
-import EditPage from './component/editPage'
 import router from './component/routerMap'
 import Request from './utils/axiosUtils'
 import CommonUtils from "./utils/commonUtils";
@@ -91,12 +86,12 @@ class App extends Component {
               
               <ColCss span={2} offset={4}>
                 <Link to="/dashboard">
-                  <h4>Silver-Dashboard</h4>
+                  <h4>SilverWind-Dashboard</h4>
                 </Link>
               </ColCss>
-              <ColCss span={2} >
+              <ColCss span={2} offset={1} >
                 <Link to="/httpPage">
-                  <h4>HTTP</h4>
+                  <h4>Config</h4>
                 </Link>
               </ColCss>
               <ColCss span={2} >
@@ -115,7 +110,7 @@ class App extends Component {
                   <Route key={key} path={item.path} exact render={
                     props => (
                       !item.auth ? (< item.component {...props} key={this.getKey}/>) :
-                        (hasLogin ? <item.component {...props}  key={this.getKey}/> : <LoginPage {...props} />)
+                        (hasLogin ? <item.component {...props}  key={this.getKey}/> : <div/>)
                     )
                   } />
                 )
