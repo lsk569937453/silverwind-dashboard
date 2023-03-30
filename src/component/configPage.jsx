@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col, message, Empty, Card, Button, Spin, Tab, Tabs, Divider, Modal,Form, Image, Input } from 'antd';
+import { Row, Col, message, Empty, Card, Button, Spin, Tab, Tabs, Divider, Modal, Form, Image, Input } from 'antd';
 import { useLocation } from 'react-router-dom'
 import PieChart from 'echarts/charts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -41,7 +41,7 @@ function ConfigPage(props) {
     const [ratelimitData, setRatelimitData] = useState({})
     const [port, setPort] = useState('undefined');
     const [routeId, setRouteId] = useState('undefined');
-    const ratelimitForm=Form.useForm();
+    // const ratelimitForm=Form.useForm();
     const location = useLocation();
     const searchParam = new URLSearchParams(location.search);
     useEffect(() => {
@@ -91,7 +91,7 @@ function ConfigPage(props) {
         });
     }
     const constructAllowDenyData = (appConfig) => {
-        let allowDenyList = appConfig?.allow_deny_list.map((item) => {
+        let allowDenyList = appConfig?.allow_deny_list?.map((item) => {
             let typeLabel = item.limit_type;
             if (typeLabel == "ALLOWALL") {
                 typeLabel = "ALLOW-ALL";
@@ -113,33 +113,39 @@ function ConfigPage(props) {
         });
     }
     const constructAuthenticationData = (appConfig) => {
-        let defaultType="None";
-        let type=appConfig.authentication?.type;
-        if(type==null){
-            type=defaultType;
+        let defaultType = "None";
+        let type = appConfig?.authentication?.type;
+        if (type == null) {
+            type = defaultType;
         }
 
         setAuthenticationData({
-            authenticationType:type,
-            authenticationObj:appConfig.authentication
+            authenticationType: type,
+            authenticationObj: appConfig?.authentication
         });
     }
     const constructRatelimitData = (appConfig) => {
-        let defaultType="None";
-        let defaultLimitLocationType="ip";
-        let type=appConfig.ratelimit?.type;
-        let limitLocationType=appConfig.ratelimit?.limit_location?.type;
-        if(type==null){
-            type=defaultType;
+        let defaultType = "None";
+        let defaultLimitLocationType = "IP";
+        let type = appConfig?.ratelimit?.type;
+        let limitLocationType = appConfig.ratelimit?.limit_location?.type;
+        if (type == null) {
+            type = defaultType;
         }
-        if(limitLocationType==null){
-            limitLocationType=defaultLimitLocationType;
+        if (limitLocationType == null) {
+            limitLocationType = defaultLimitLocationType;
         }
 
         setRatelimitData({
-            ratelimitType:type,
-            limitLocationType:limitLocationType,
-            form:ratelimitForm,
+            ratelimitType: type,
+            limitLocationType: limitLocationType,
+            bucketCapacity:appConfig.ratelimit?.capacity,
+            ratePerUnit:appConfig.ratelimit?.rate_per_unit,
+            ip:appConfig.ratelimit?.limit_location?.value,
+            headerKey:appConfig.ratelimit?.limit_location?.key,
+            headerValue:appConfig.ratelimit?.limit_location?.value,
+            unitType:appConfig.ratelimit?.unit?.type,
+            // form:ratelimitForm,
         });
     }
     const getTabs = () => {
@@ -174,7 +180,7 @@ function ConfigPage(props) {
         }
     }
     const updateRoute = () => {
-        ratelimitForm.submit();
+        // ratelimitForm.submit();
         const isWeightRoute = baseConfigData.routeAlgorighm == "WeightBasedRoute";
         const isHeaderBasedRoute = baseConfigData.routeAlgorighm == "HeaderBasedRoute";
 
@@ -201,7 +207,7 @@ function ConfigPage(props) {
             },
             "allow_deny_list": collectAllowDenyData(),
             "authentication": collectAuthenticationData(),
-            "ratelimit": null,
+            "ratelimit": collectRatelimitData(),
             "route_cluster": {
                 "type": baseConfigData.routeAlgorighm,
                 "routes": routes
@@ -238,18 +244,43 @@ function ConfigPage(props) {
         }));
     };
     const collectAuthenticationData = () => {
-        if(authenticationData.authenticationType=="None"){
+        if (authenticationData.authenticationType == "None") {
             return null;
         }
-        const isApiKeyAuth=authenticationData.authenticationType=="ApiKeyAuth";
-        const isBasicAuth=authenticationData.authenticationType=="BasicAuth";
+        const isApiKeyAuth = authenticationData.authenticationType == "ApiKeyAuth";
+        const isBasicAuth = authenticationData.authenticationType == "BasicAuth";
         return {
-            type:authenticationData.authenticationType,
-            ...(isApiKeyAuth) && { key: authenticationData.authenticationObj.key},
+            type: authenticationData.authenticationType,
+            ...(isApiKeyAuth) && { key: authenticationData.authenticationObj.key },
             ...(isApiKeyAuth) && { value: authenticationData.authenticationObj.value },
             ...(isBasicAuth) && { credentials: authenticationData.authenticationObj.credentials },
 
         };
+    };
+    const collectRatelimitData = () => {
+        if(ratelimitData.ratelimitType=="None"){
+            return null;
+        }
+    
+        const isTokenBucket=ratelimitData.ratelimitType=="TokenBucketRateLimit";
+        const isLocationOnIP=ratelimitData.limitLocationType=="IP";
+        const data= {
+            type: ratelimitData.ratelimitType,
+            rate_per_unit: ratelimitData.ratePerUnit,
+            unit: {
+                type: ratelimitData.unitType
+            },
+            ...(isTokenBucket) && { capacity: ratelimitData.bucketCapacity},
+            limit_location: {
+                type: ratelimitData.limitLocationType,
+                ...(isLocationOnIP) && {value: ratelimitData.ip},
+                ...(!isLocationOnIP) && {key: ratelimitData.headerKey},
+                ...(!isLocationOnIP) && {value: ratelimitData.headerValue},
+
+            }
+        };
+        return data;
+
     };
 
     return (
