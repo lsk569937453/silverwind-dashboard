@@ -1,27 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col, message, Empty, Card, Button, Spin, Affix, Divider, Modal, Image, Input } from 'antd';
+import { Row, Col, message,  Button,  Modal, Input } from 'antd';
 import { useLocation } from 'react-router-dom'
-import PieChart from 'echarts/charts';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import Request from '../utils/axiosUtils'
 import { Table } from 'antd';
 import { Select } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { withRouter } from 'react-router-dom'
 
 import CommonUtils from '../utils/commonUtils'
-import styled, { keyframes } from 'styled-components'
-import { EditOutlined, AppleFilled, AndroidFilled } from '@ant-design/icons';
-import { List } from 'rc-field-form';
-import ReactECharts from 'echarts-for-react';
-import { use } from 'echarts';
+import styled from 'styled-components'
 
-const LoadingDiv = styled(Spin)`
-`
-const ButtonDiv = styled(Button)`
-font-weight: 600;
-`
 const LineDiv = styled.div`
 display: inline-block;
 background:#fff;
@@ -47,38 +36,12 @@ font-size: 30px;
     padding-top: 10px;
 
 `;
-const Maindiv = styled.div`
-background: #fff;
-`
-const ModalDiv = styled(Modal)`
-.ant-modal-mask {
-  background-color: transparent !important;
-}
-.ant-modal-content{
-    background-color: transparent;
-    border:0;
-    border-radius:none;
-    -webkit-box-shadow:none;
-    box-shadow:none;
-}
-.ant-modal-body{
-    padding: 0;
-}
-.ant-modal-footer{
-    /* display: fa; */
-    display: contents;
-}
-`
+
 const RowDiv = styled(Row)`
 background: rgb(245, 245, 247);
 `;
-const CardDiv = styled(Card)`
-.ant-card-body{
-    padding:0px;
-}
-`;
+
 function DetailPage(props) {
-    const [appConfig, setAppConfig] = useState({});
     const [tableData, setTableData] = useState([]);
     const [allowDenyList, setAllowDenyList] = useState([]);
     const [port, setPort] = useState(0);
@@ -99,7 +62,7 @@ function DetailPage(props) {
 
     useEffect(() => {
         var port = searchParam.get("port");
-        if (port == undefined || port == null) {
+        if (port === undefined || port === null) {
             return;
         }
         setPort(port);
@@ -108,10 +71,9 @@ function DetailPage(props) {
     }, []);
     const requestAppConfig = (currentPort) => {
         Request.get("/appConfig").then(res => {
-            if (res.data.response_code == 0) {
+            if (res.data.response_code === 0) {
                 let apiConfigs = res.data.response_object.api_service_config;
-                setAppConfig(apiConfigs);
-                let portConfig = apiConfigs.filter(config => config.listen_port == currentPort)[0];
+                let portConfig = apiConfigs.filter(config => config.listen_port === currentPort)[0];
 
                 let newTableData = portConfig.service_config.routes.map((item) => ({
                     matchPrefix: item.matcher.prefix,
@@ -133,13 +95,13 @@ function DetailPage(props) {
 
     const handleSubmitAllowDenyList = () => {
         Request.get("/appConfig").then(res => {
-            if (res.data.response_code == 0) {
+            if (res.data.response_code === 0) {
                 let apiConfigs = res.data.response_object.api_service_config;
-                setAppConfig(apiConfigs);
+                // setAppConfig(apiConfigs);
                 let newApiConfigs = apiConfigs.map(config => {
-                    if (config.listen_port == port) {
+                    if (config.listen_port === port) {
                         config.service_config.routes = config.service_config.routes.map(item => {
-                            if (item.route_id == currentRouteId) {
+                            if (item.route_id === currentRouteId) {
                                 let resObj = allowDenyList.map((item) => ({
                                     limit_type: item.type.toUpperCase(),
                                     value: item.value,
@@ -167,13 +129,13 @@ function DetailPage(props) {
         authenticationObj.type = authenticationType;
 
         Request.get("/appConfig").then(res => {
-            if (res.data.response_code == 0) {
+            if (res.data.response_code === 0) {
                 let apiConfigs = res.data.response_object.api_service_config;
-                setAppConfig(apiConfigs);
+                // setAppConfig(apiConfigs);
                 let newApiConfigs = apiConfigs.map(config => {
-                    if (config.listen_port == port) {
+                    if (config.listen_port === port) {
                         config.service_config.routes = config.service_config.routes.map(item => {
-                            if (item.route_id == currentRouteId) {
+                            if (item.route_id === currentRouteId) {
                                 if (authenticationType === "None") {
                                     item.authentication = null;
                                 } else
@@ -202,8 +164,8 @@ function DetailPage(props) {
     }
 
     const addNewAllowDenyListButtonClick = (record) => {
-        let tempAllowDenyList = serviceConfig.service_config.routes.filter(s => s.route_id == record.routeId)[0].allow_deny_list;
-        if (tempAllowDenyList != undefined && tempAllowDenyList.length > 0) {
+        let tempAllowDenyList = serviceConfig.service_config.routes.filter(s => s.route_id === record.routeId)[0].allow_deny_list;
+        if (tempAllowDenyList !== undefined && tempAllowDenyList.length > 0) {
             let s = tempAllowDenyList.map(s => ({
                 type: s.limit_type,
                 value: s.value,
@@ -216,7 +178,7 @@ function DetailPage(props) {
 
     }
     const addNewAuthenticationButtonClick = (record) => {
-        let tempAuthentication = serviceConfig.service_config.routes.filter(s => s.route_id == record.routeId)[0].authentication;
+        let tempAuthentication = serviceConfig.service_config.routes.filter(s => s.route_id === record.routeId)[0].authentication;
         if (tempAuthentication?.type !== undefined) {
             setAuthenticationType(tempAuthentication.type);
         }
@@ -265,7 +227,7 @@ function DetailPage(props) {
     const handleAddAllowDenyList = () => {
 
         let flag = false;
-        if (allowDenyType == "ALLOW" || allowDenyType == "DENY") {
+        if (allowDenyType === "ALLOW" || allowDenyType === "DENY") {
             flag = true;
         }
         if (flag) {
@@ -291,7 +253,7 @@ function DetailPage(props) {
         console.log('params', pagination, filters, sorter, extra);
     };
     const handleAllowDenyTypeOptionOnChange = (value) => {
-        if (value == "ALLOWALL" || value == "DENYALL") {
+        if (value === "ALLOWALL" || value === "DENYALL") {
             setIpInputEnable(false);
         } else {
             setIpInputEnable(true);
@@ -342,7 +304,7 @@ function DetailPage(props) {
     }
     const renderAllowDenyList = () => {
 
-        if (allowDenyList.length == 0) {
+        if (allowDenyList.length === 0) {
             return;
         }
         return allowDenyList.map((item) => (
@@ -447,7 +409,7 @@ function DetailPage(props) {
                     </Col>
                     <Col offset={1} span={12}>
                         {
-                            authenticationType == "ApiKeyAuth" ?
+                            authenticationType === "ApiKeyAuth" ?
                                 (<Row>
                                     <Col span={10}>
                                         <Input placeholder="header key:" value={authenticationObj?.key} onChange={authenticationKeyOnChange} />
@@ -456,7 +418,7 @@ function DetailPage(props) {
                                         <Input placeholder="value:" value={authenticationObj?.value} onChange={authenticationValueOnChange} />
                                     </Col>
                                 </Row>) : (
-                                    authenticationType == "BasicAuth" ?
+                                    authenticationType === "BasicAuth" ?
                                         (<Input placeholder="credentials" value={authenticationObj?.credentials} onChange={authenticationCredentialsOnChange} />) :
                                         (<div />)
                                 )

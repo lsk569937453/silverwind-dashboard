@@ -1,20 +1,16 @@
-import logo from './logo.svg';
 import { React, Component } from 'react';
 
 import './App.css';
 import router from './component/routerMap'
 import Request from './utils/axiosUtils'
 import CommonUtils from "./utils/commonUtils";
-import { Button, Row, Col, Affix } from 'antd';
+import {  Row, Col } from 'antd';
 import {
   HashRouter  as Router,
   Switch,
   Route,
   Link,
-  useParams,
-  useRouteMatch
 } from "react-router-dom";
-import PropTypes from "prop-types";
 
 import styled from 'styled-components'
 
@@ -56,7 +52,7 @@ class App extends Component {
       });
     }
     Request.get("api/checkStatus").then(res => {
-      if (res.data.resCode == 0) {
+      if (res.data.resCode ===0) {
         this.setState({
           userMail: res.data.resMessage
         });
@@ -76,7 +72,7 @@ class App extends Component {
     return CommonUtils.guid();
   }
   render() {
-    const { hasLogin, userMail } = this.state;
+    const { hasLogin } = this.state;
     console.log("haslogin:"+hasLogin);
     return (
       <Router>

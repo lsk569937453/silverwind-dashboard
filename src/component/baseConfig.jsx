@@ -1,23 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Row, Col, message, Empty, Card, Button, InputNumber, Spin, Tab, Typography, Popconfirm, Tabs, Table, Divider, Modal, Image, Form, Input } from 'antd';
-import { useLocation } from 'react-router-dom'
-import PieChart from 'echarts/charts';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Request from '../utils/axiosUtils'
+import React, { useState } from 'react'
+import {   Button, InputNumber,  Typography,  Table,  Form, Input } from 'antd';
+
 import { Select } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { withRouter } from 'react-router-dom'
 
 import CommonUtils from '../utils/commonUtils'
-import styled, { keyframes } from 'styled-components'
-import { EditOutlined, AppleFilled, AndroidFilled } from '@ant-design/icons';
-import { List } from 'rc-field-form';
-import ReactECharts from 'echarts-for-react';
-import { use } from 'echarts';
-const RowDiv = styled(Row)`
-background: rgb(245, 245, 247);
-`;
+
+
 const { Option } = Select;
 const layout = {
     labelCol: {
@@ -29,17 +17,10 @@ const layout = {
     },
 };
 
-const tailLayout = {
-    wrapperCol: {
-        offset: 2,
-        span: 10,
-    },
-};
 
 
 
 function BaseConfig(props) {
-    const [routeAlgorighm, setRouteAlgorighm] = useState("random");
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
     // const [tableData, setTableData] = useState([]);
@@ -76,9 +57,9 @@ function BaseConfig(props) {
         ...restProps
     }) => {
         let inputNode = {};
-        if (dataIndex == "weight") {
+        if (dataIndex === "weight") {
             inputNode = <InputNumber min={0} max={100} defaultValue={100} />;
-        } else if (dataIndex == "headerValueType") {
+        } else if (dataIndex === "headerValueType") {
             inputNode = <Select
                 defaultValue="Text"
                 style={{
@@ -142,7 +123,7 @@ function BaseConfig(props) {
     };
     const handleDeleteButtonClick=(record)=>{
         const { key } = record;
-        const newTableData=props.baseConfigData.tableData.filter(item => item.key != key);
+        const newTableData=props.baseConfigData.tableData.filter(item => item.key !== key);
         props.setBaseConfigData(prevData=>({
             ...prevData,
             tableData:newTableData
@@ -269,7 +250,7 @@ function BaseConfig(props) {
 
     }
     const getColumn = () => {
-        if (props.baseConfigData.routeAlgorighm == "WeightBasedRoute") {
+        if (props.baseConfigData.routeAlgorighm === "WeightBasedRoute") {
             const weightColumn = {
                 title: 'Weight',
                 dataIndex: 'weight',
@@ -278,7 +259,7 @@ function BaseConfig(props) {
             };
             return [columns[0], weightColumn, columns[1]]
         }
-        if (props.baseConfigData.routeAlgorighm == "HeaderBasedRoute") {
+        if (props.baseConfigData.routeAlgorighm === "HeaderBasedRoute") {
             const headerKeyColumn = {
                 title: 'Header Key',
                 dataIndex: 'headerkey',
@@ -310,12 +291,7 @@ function BaseConfig(props) {
         console.log(values);
     };
 
-    const onFill = () => {
-        form1.setFieldsValue({
-            note: 'Hello world!',
-            gender: 'male',
-        });
-    };
+
     const handlePortInputChange=(e)=>{
         let oldData=props.port;
         props.setAppConfig(e.target.value);

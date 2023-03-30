@@ -1,39 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Row, Col, message, Empty, Card, Button, InputNumber, Spin, Tab, Typography, Popconfirm, Tabs, Table, Divider, Modal, Image, Form, Input } from 'antd';
-import { useLocation } from 'react-router-dom'
-import PieChart from 'echarts/charts';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Request from '../utils/axiosUtils'
+import React, { useState} from 'react'
+import { Row, Col, message,  Button, Input } from 'antd';
 import { Select } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { withRouter } from 'react-router-dom'
+
 
 import CommonUtils from '../utils/commonUtils'
-import styled, { keyframes } from 'styled-components'
-import { EditOutlined, AppleFilled, AndroidFilled } from '@ant-design/icons';
-import { List } from 'rc-field-form';
-import ReactECharts from 'echarts-for-react';
-import { use } from 'echarts';
-const RowDiv = styled(Row)`
-background: rgb(245, 245, 247);
-`;
-const { Option } = Select;
-const layout = {
-    labelCol: {
-        span: 3,
-    },
-    wrapperCol: {
-        span: 3,
-    },
-};
-
-const tailLayout = {
-    wrapperCol: {
-        offset: 2,
-        span: 10,
-    },
-};
 
 
 
@@ -52,7 +23,7 @@ function AllowDenyList(props) {
     };
     const renderAllowDenyList = () => {
         const allowDenyList=props.allowDenyData?.allowDenyList;
-        if(allowDenyList==null||allowDenyList.length==0){
+        if(allowDenyList===null||allowDenyList.length===0){
             return;
         }
 
@@ -82,7 +53,7 @@ function AllowDenyList(props) {
     const handleAddAllowDenyList = () => {
 
         let flag = false;
-        if (allowDenyType == "ALLOW" || allowDenyType == "DENY") {
+        if (allowDenyType === "ALLOW" || allowDenyType === "DENY") {
             flag = true;
         }
         if (flag) {
@@ -93,9 +64,9 @@ function AllowDenyList(props) {
             }
         }
         let allowDenyTypeLabel=allowDenyType;
-        if(allowDenyTypeLabel=="ALLOWALL"){
+        if(allowDenyTypeLabel==="ALLOWALL"){
             allowDenyTypeLabel="ALLOW-ALL";
-        }else if(allowDenyTypeLabel=="DENYALL"){
+        }else if(allowDenyTypeLabel==="DENYALL"){
             allowDenyTypeLabel="DENY-ALL";
         }
         const key = CommonUtils.guid();
@@ -113,7 +84,7 @@ function AllowDenyList(props) {
         setIpInput("");
     };
     const handleAllowDenyTypeOptionOnChange = (value) => {
-        if (value == "ALLOWALL" || value == "DENYALL") {
+        if (value === "ALLOWALL" || value === "DENYALL") {
             setIpInputEnable(false);
         } else {
             setIpInputEnable(true);

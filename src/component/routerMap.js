@@ -1,8 +1,6 @@
 
-import { Button, Row, Col, Affix } from 'antd';
 import DashboardPage from './dashboardPage';
 import HttpPage from './httpPage';
-import DetailPage from './detailPage'
 import ConfigPage from './configPage';
 const router = [
      {

@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col, message, Empty, Card, Button, Spin, Tab, Tabs, Divider, Modal, Form, Image, Input } from 'antd';
+import { Row, Col,  Card, Button,  Tabs} from 'antd';
 import { useLocation } from 'react-router-dom'
-import PieChart from 'echarts/charts';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import Request from '../utils/axiosUtils'
-import { Table } from 'antd';
-import { Select } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+
 import { withRouter } from 'react-router-dom'
 
 import CommonUtils from '../utils/commonUtils'
-import styled, { keyframes } from 'styled-components'
-import { EditOutlined, AppleFilled, AndroidFilled } from '@ant-design/icons';
-import { List } from 'rc-field-form';
-import ReactECharts from 'echarts-for-react';
-import { use } from 'echarts';
+import styled from 'styled-components'
+
 import BaseConfig from './baseConfig'
 import AllowDenyList from './allowDenyList';
 import Authentication from './authentication';
@@ -34,7 +27,6 @@ height : 60vh;
 
 function ConfigPage(props) {
     const [appConfig, setAppConfig] = useState({});
-    const [size, setSize] = useState('large');
     const [baseConfigData, setBaseConfigData] = useState({})
     const [allowDenyData, setAllowDenyData] = useState({})
     const [authenticationData, setAuthenticationData] = useState({})
@@ -46,11 +38,11 @@ function ConfigPage(props) {
     const searchParam = new URLSearchParams(location.search);
     useEffect(() => {
         var port = searchParam.get("port");
-        if (port == undefined || port == null) {
+        if (port === undefined || port === null) {
             return;
         }
         var routeId = searchParam.get("routeId");
-        if (routeId == undefined || routeId == null) {
+        if (routeId === undefined || routeId === null) {
             return;
         }
         setPort(port);
@@ -59,8 +51,8 @@ function ConfigPage(props) {
     }, []);
     const requestAppConfig = (currentPort, routeId) => {
         Request.get("/appConfig").then(res => {
-            if (res.data.response_code == 0) {
-                let apiConfigs = res.data.response_object.api_service_config.filter(item => item.listen_port == currentPort)[0].service_config.routes.filter(item => item.route_id == routeId)[0];
+            if (res.data.response_code === 0) {
+                let apiConfigs = res.data.response_object.api_service_config.filter(item => item.listen_port === currentPort)[0].service_config.routes.filter(item => item.route_id === routeId)[0];
                 setAppConfig(apiConfigs);
                 constructConfigData(apiConfigs, currentPort);
                 constructAllowDenyData(apiConfigs);
@@ -93,9 +85,9 @@ function ConfigPage(props) {
     const constructAllowDenyData = (appConfig) => {
         let allowDenyList = appConfig?.allow_deny_list?.map((item) => {
             let typeLabel = item.limit_type;
-            if (typeLabel == "ALLOWALL") {
+            if (typeLabel === "ALLOWALL") {
                 typeLabel = "ALLOW-ALL";
-            } else if (typeLabel == "DENYALL") {
+            } else if (typeLabel === "DENYALL") {
                 typeLabel = "DENY-ALL";
             }
             return {
@@ -173,7 +165,7 @@ function ConfigPage(props) {
 
     };
     const handleSaveButtonOnClick = () => {
-        if (port == undefined) {
+        if (port === undefined) {
 
         } else {
             updateRoute();
@@ -181,8 +173,8 @@ function ConfigPage(props) {
     }
     const updateRoute = () => {
         // ratelimitForm.submit();
-        const isWeightRoute = baseConfigData.routeAlgorighm == "WeightBasedRoute";
-        const isHeaderBasedRoute = baseConfigData.routeAlgorighm == "HeaderBasedRoute";
+        const isWeightRoute = baseConfigData.routeAlgorighm === "WeightBasedRoute";
+        const isHeaderBasedRoute = baseConfigData.routeAlgorighm === "HeaderBasedRoute";
 
         const routes = baseConfigData.tableData.map((item) => ({
             "base_route": {
@@ -214,13 +206,13 @@ function ConfigPage(props) {
             }
         }
         Request.get("/appConfig").then(res => {
-            if (res.data.response_code == 0) {
+            if (res.data.response_code === 0) {
                 let apiConfigs = res.data.response_object.api_service_config;
                 setAppConfig(apiConfigs);
                 let newApiConfigs = apiConfigs.map(config => {
-                    if (config.listen_port == port) {
+                    if (config.listen_port === port) {
                         config.service_config.routes = config.service_config.routes.map(item => {
-                            if (item.route_id == routeId) {
+                            if (item.route_id === routeId) {
                                 return newBaseRoute;
                             }
                             return item;
@@ -244,11 +236,11 @@ function ConfigPage(props) {
         }));
     };
     const collectAuthenticationData = () => {
-        if (authenticationData.authenticationType == "None") {
+        if (authenticationData.authenticationType === "None") {
             return null;
         }
-        const isApiKeyAuth = authenticationData.authenticationType == "ApiKeyAuth";
-        const isBasicAuth = authenticationData.authenticationType == "BasicAuth";
+        const isApiKeyAuth = authenticationData.authenticationType === "ApiKeyAuth";
+        const isBasicAuth = authenticationData.authenticationType === "BasicAuth";
         return {
             type: authenticationData.authenticationType,
             ...(isApiKeyAuth) && { key: authenticationData.authenticationObj.key },
@@ -258,12 +250,12 @@ function ConfigPage(props) {
         };
     };
     const collectRatelimitData = () => {
-        if(ratelimitData.ratelimitType=="None"){
+        if(ratelimitData.ratelimitType==="None"){
             return null;
         }
     
-        const isTokenBucket=ratelimitData.ratelimitType=="TokenBucketRateLimit";
-        const isLocationOnIP=ratelimitData.limitLocationType=="IP";
+        const isTokenBucket=ratelimitData.ratelimitType==="TokenBucketRateLimit";
+        const isLocationOnIP=ratelimitData.limitLocationType==="IP";
         const data= {
             type: ratelimitData.ratelimitType,
             rate_per_unit: ratelimitData.ratePerUnit,
@@ -292,7 +284,7 @@ function ConfigPage(props) {
                             // centered={true}
                             defaultActiveKey="1"
                             type="card"
-                            size={size}
+                            size="large"
                             items={getTabs()}
                         />
                     </Card>

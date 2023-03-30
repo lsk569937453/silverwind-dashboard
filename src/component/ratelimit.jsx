@@ -1,23 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Row, Col, message, Empty, Card, Button, InputNumber, Spin, Tab, Typography, Popconfirm, Tabs, Table, Divider, Modal, Image, Form, Input } from 'antd';
-import { useLocation } from 'react-router-dom'
-import PieChart from 'echarts/charts';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import Request from '../utils/axiosUtils'
+import React from 'react'
+import { Row, Col,  InputNumber,  Form, Input } from 'antd';
 import { Select } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { withRouter } from 'react-router-dom'
-
-import CommonUtils from '../utils/commonUtils'
-import styled, { keyframes } from 'styled-components'
-import { EditOutlined, AppleFilled, AndroidFilled } from '@ant-design/icons';
-import { List } from 'rc-field-form';
-import ReactECharts from 'echarts-for-react';
-import { use } from 'echarts';
-const RowDiv = styled(Row)`
-background: rgb(245, 245, 247);
-`;
 
 const { Option } = Select;
 const layout = {
@@ -28,12 +11,7 @@ const layout = {
         span: 8,
     },
 };
-const tailLayout = {
-    wrapperCol: {
-        offset: 8,
-        span: 16,
-    },
-};
+
 
 
 function Ratelimit(props) {
@@ -80,15 +58,7 @@ function Ratelimit(props) {
     const onFinish = (values) => {
         console.log(values);
     };
-    const onReset = () => {
-        props.form.resetFields();
-    };
-    const onFill = () => {
-        props.form.setFieldsValue({
-            note: 'Hello world!',
-            gender: 'male',
-        });
-    };
+
     const handleRatePerUnitOnChange = (value) => {
         props.setRatelimitData(previousState => ({
             ...previousState,
@@ -130,7 +100,7 @@ function Ratelimit(props) {
                         onFinish={onFinish}
 
                     >
-                        {props.ratelimitData.ratelimitType == "TokenBucketRateLimit" ?
+                        {props.ratelimitData.ratelimitType === "TokenBucketRateLimit" ?
                     <Form.Item
                         name="bucketCapacity"
                         label="Bucket Capacity"
@@ -197,7 +167,7 @@ function Ratelimit(props) {
                                     </Select>
                                 </Col>
                                 {
-                                    props.ratelimitData.limitLocationType == "Header" ? <>
+                                    props.ratelimitData.limitLocationType === "Header" ? <>
                                         <Col offset={1} span={8}>
                                             <Input placeholder='Header Key' onChange={handleHeaderKeyOnChange} value={props.ratelimitData?.headerKey}/>
 
@@ -236,7 +206,7 @@ function Ratelimit(props) {
                 </Col>
                 <Col span={20}></Col>
                 <Col span={24}>
-                    {props.ratelimitData.ratelimitType == "None" ? <></> : tokenBucketDiv()}
+                    {props.ratelimitData.ratelimitType === "None" ? <></> : tokenBucketDiv()}
                 </Col>
             </Row>
         </div>
