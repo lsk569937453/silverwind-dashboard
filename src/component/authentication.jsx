@@ -19,12 +19,9 @@ const RowDiv = styled(Row)`
 background: rgb(245, 245, 247);
 `;
 
-
-
-
 function Authentication(props) {
-    const [authenticationType, setAuthenticationType] = useState("None");
-    const [authenticationObj, setAuthenticationObj] = useState({});
+    // const [authenticationType, setAuthenticationType] = useState("None");
+    // const [authenticationObj, setAuthenticationObj] = useState({});
 
     const authenticationOption = () => {
         return [
@@ -44,28 +41,52 @@ function Authentication(props) {
 
     }
     const handleAuthenticationTypeOptionOnChange = (value) => {
-
-        setAuthenticationType(value);
+        props.setAuthenticationData(previousState=>({
+            ...previousState,
+            authenticationType:value
+        }));
+        // setAuthenticationType(value);
     };
     const authenticationKeyOnChange = (e) => {
-        setAuthenticationObj(authenticationObj => ({
-            ...authenticationObj,
-            key: e.target.value
+        // setAuthenticationObj(authenticationObj => ({
+        //     ...authenticationObj,
+        //     key: e.target.value
+        // }));
+        const {authenticationObj}=props.authenticationData;
+        props.setAuthenticationData(previousState=>({
+            ...previousState,
+            authenticationObj:{
+                ...authenticationObj,
+                key: e.target.value
+            }
         }));
-        console.log(authenticationObj);
-
     };
     const authenticationValueOnChange = (e) => {
-        setAuthenticationObj(authenticationObj => ({
-            ...authenticationObj,
-            value: e.target.value
+        // setAuthenticationObj(authenticationObj => ({
+        //     ...authenticationObj,
+        //     value: e.target.value
+        // }));
+        const {authenticationObj}=props.authenticationData;
+        props.setAuthenticationData(previousState=>({
+            ...previousState,
+            authenticationObj:{
+                ...authenticationObj,
+                value: e.target.value
+            }
         }));
-        console.log(authenticationObj);
     };
     const authenticationCredentialsOnChange = (e) => {
-        setAuthenticationObj(authenticationObj => ({
-            ...authenticationObj,
-            credentials: e.target.value
+        // setAuthenticationObj(authenticationObj => ({
+        //     ...authenticationObj,
+        //     credentials: e.target.value
+        // }));
+        const {authenticationObj}=props.authenticationData;
+        props.setAuthenticationData(previousState=>({
+            ...previousState,
+            authenticationObj:{
+                ...authenticationObj,
+                credentials: e.target.value
+            }
         }));
     };
     return (
@@ -73,7 +94,7 @@ function Authentication(props) {
             <Row>
                 <Col  offset={6}>
                     <Select
-                        defaultValue={authenticationType}
+                        defaultValue={props.authenticationData?.authenticationType}
                         style={{ width: 180 }}
                         options={authenticationOption()}
                         onChange={handleAuthenticationTypeOptionOnChange}
@@ -81,17 +102,17 @@ function Authentication(props) {
                 </Col>
                 <Col offset={1} span={6}>
                     {
-                        authenticationType == "ApiKeyAuth" ?
+                        props.authenticationData?.authenticationType == "ApiKeyAuth" ?
                             (<Row>
                                 <Col span={10}>
-                                    <Input placeholder="header key:" value={authenticationObj?.key} onChange={authenticationKeyOnChange} />
+                                    <Input placeholder="header key:" value={props.authenticationData?.authenticationObj?.key} onChange={authenticationKeyOnChange} />
                                 </Col>
                                 <Col span={12} offset={1}>
-                                    <Input placeholder="value:" value={authenticationObj?.value} onChange={authenticationValueOnChange} />
+                                    <Input placeholder="value:" value={props.authenticationData?.authenticationObj?.value} onChange={authenticationValueOnChange} />
                                 </Col>
                             </Row>) : (
-                                authenticationType == "BasicAuth" ?
-                                    (<Input placeholder="credentials" value={authenticationObj?.credentials} onChange={authenticationCredentialsOnChange} />) :
+                                props.authenticationData?.authenticationType == "BasicAuth" ?
+                                    (<Input placeholder="credentials" value={props.authenticationData?.authenticationObj?.credentials} onChange={authenticationCredentialsOnChange} />) :
                                     (<div />)
                             )
                     }

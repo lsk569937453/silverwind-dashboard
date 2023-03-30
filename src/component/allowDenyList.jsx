@@ -38,20 +38,26 @@ const tailLayout = {
 
 
 function AllowDenyList(props) {
-    const [allowDenyList, setAllowDenyList] = useState([]);
+    // const [allowDenyList, setAllowDenyList] = useState([]);
     const [ipInput, setIpInput] = useState("");
     const [allowDenyType, setAllowDenyType] = useState("ALLOW");
     const [ipInputEnable, setIpInputEnable] = useState(true);
 
     const handleDelAllowDenyList = (key) => {
-        setAllowDenyList(allowDenyList.filter(item => item.key !== key))
+        const newAllowDenyList=props.allowDenyData.allowDenyList.filter(item => item.key !== key);
+        props.setAllowDenyData({
+            allowDenyList:newAllowDenyList
+        });
+
     };
     const renderAllowDenyList = () => {
-
-        if (allowDenyList.length == 0) {
+        const allowDenyList=props.allowDenyData?.allowDenyList;
+        if(allowDenyList==null||allowDenyList.length==0){
             return;
         }
-        return allowDenyList.map((item) => (
+
+
+        return props.allowDenyData.allowDenyList.map((item) => (
             <div key={item.key}>
                 <Row>
                     <Col offset={6}>
@@ -63,10 +69,10 @@ function AllowDenyList(props) {
                         >
                         </Button>
                     </Col>
-                    <Col>
-                        <p style={{marginLeft:10}}>{item.type}</p>
+                    <Col span={2}>
+                        <p style={{marginLeft:10,marginTop:3}}>{item.typeLabel}</p>
                     </Col>
-                    <Col offset={2}>
+                    <Col span={2} offset={1}>
                         <p style={{marginLeft:10}}>{item.value}</p>
                     </Col>
                 </Row>
@@ -86,13 +92,24 @@ function AllowDenyList(props) {
                 return;
             }
         }
+        let allowDenyTypeLabel=allowDenyType;
+        if(allowDenyTypeLabel=="ALLOWALL"){
+            allowDenyTypeLabel="ALLOW-ALL";
+        }else if(allowDenyTypeLabel=="DENYALL"){
+            allowDenyTypeLabel="DENY-ALL";
+        }
         const key = CommonUtils.guid();
         const data = {
             "type": allowDenyType,
+            "typeLabel":allowDenyTypeLabel,
             "value": !flag ? "" : ipInput,
             "key": key,
         };
-        setAllowDenyList([...allowDenyList, data]);
+        const newAllowDenyList=[...props.allowDenyData.allowDenyList, data];
+        props.setAllowDenyData({
+            allowDenyList:newAllowDenyList
+        });
+        // setAllowDenyList([...allowDenyList, data]);
         setIpInput("");
     };
     const handleAllowDenyTypeOptionOnChange = (value) => {
@@ -115,11 +132,11 @@ function AllowDenyList(props) {
             },
             {
                 value: 'ALLOWALL',
-                label: 'ALLOWALL',
+                label: 'ALLOW-ALL',
             },
             {
                 value: 'DENYALL',
-                label: 'DENYALL',
+                label: 'DENY-ALL',
             },
         ];
 
@@ -129,8 +146,8 @@ function AllowDenyList(props) {
     }
     return (
         <div style={{padding:20}}>
-            {renderAllowDenyList()}
-            <Row>
+           
+            <Row style={{marginBottom:20}}>
                     <Col offset={6}>
                         <Button
                             type="dashed"
@@ -139,7 +156,7 @@ function AllowDenyList(props) {
                         >
                         </Button>
                     </Col>
-                    <Col>
+                    <Col span={2}>
                         <Select
                             defaultValue={allowDenyType}
                             style={{ width: 120 }}
@@ -152,7 +169,7 @@ function AllowDenyList(props) {
                         <Input placeholder="IP or IP_RANGE" value={ipInput} disabled={!ipInputEnable} onChange={ipOnChange} />
                     </Col>
                 </Row>
-
+                {renderAllowDenyList()}
         </div>
     );
 

@@ -126,15 +126,7 @@ function BaseConfig(props) {
             </td>
         );
     };
-    const handleDeleteButtonOnClick = (record) => {
-        const { key } = record;
 
-        props.setBaseConfigData(baseConfigData=>{
-            const tableData=baseConfigData.tableData;
-            baseConfigData.tableData=tableData.filter(item => item.key != key);
-            return baseConfigData;
-        });
-    }
     // const handleEditButtonOnClick = (record) => {
     //     const { key } = record;
     //     setTableData(tableData.filter(item => item.key != key))
@@ -150,12 +142,16 @@ function BaseConfig(props) {
     };
     const handleDeleteButtonClick=(record)=>{
         const { key } = record;
-
-        props.setBaseConfigData((baseConfigData)=>{
-            const tableData=baseConfigData.tableData;
-            baseConfigData.tableData=tableData.filter(item => item.key != key);
-            return baseConfigData;
-        });
+        const newTableData=props.baseConfigData.tableData.filter(item => item.key != key);
+        props.setBaseConfigData(prevData=>({
+            ...prevData,
+            tableData:newTableData
+        }))
+        // props.setBaseConfigData((baseConfigData)=>{
+        //     const tableData=baseConfigData.tableData;
+        //     baseConfigData.tableData=tableData.filter(item => item.key != key);
+        //     return baseConfigData;
+        // });
         // setTableData(tableData=>tableData.filter(item=>item.key!=record.key))
     };  
     const cancel = () => {
@@ -164,7 +160,7 @@ function BaseConfig(props) {
     const save = async (key) => {
         try {
             const row = await form2.validateFields();
-            const newData = [...props.baseConfigData.tableData.tableData];
+            const newData = [...props.baseConfigData.tableData];
             const index = newData.findIndex((item) => key === item.key);
             if (index > -1) {
                 const item = newData[index];
@@ -173,19 +169,19 @@ function BaseConfig(props) {
                     ...row,
                 });
                 // setTableData(newData);
-                props.setBaseConfigData((baseConfigData)=>{
-                    baseConfigData.tableData=newData;
-                    return baseConfigData;
-                });
+                props.setBaseConfigData(prevData=>({
+                    ...prevData,
+                    tableData:newData
+                }))
 
                 setEditingKey('');
             } else {
                 newData.push(row);
                 // setTableData(newData);
-                props.setBaseConfigData((baseConfigData)=>{
-                    baseConfigData.tableData=newData;
-                    return baseConfigData;
-                });
+                props.setBaseConfigData(prevData=>({
+                    ...prevData,
+                    tableData:newData
+                }))
 
                 setEditingKey('');
             }
@@ -258,17 +254,22 @@ function BaseConfig(props) {
     });
     const addRowButtonClick = () => {
         const key = CommonUtils.guid();
-        const defaultRoute = { endpoint: "http://192.168.0.1", key: key, weight: 100, headerkey: "user-agent", headerValueType: "Text", headerValueMatch: "test" };
+        const defaultRoute = { endpoint: "http://192.168.0.1:4450", key: key, weight: 100, headerkey: "user-agent", headerValueType: "Text", headerValueMatch: "test" };
         // setTableData(tableData => [...tableData, defaultRoute]);
-
-        props.setBaseConfigData((baseConfigData)=>{
-            baseConfigData.tableData.push(defaultRoute);
-            return baseConfigData;
-        });
+        console.log(defaultRoute);
+        // props.setBaseConfigData(prevStyle =>{
+        //     baseConfigData.tableData.push(defaultRoute);
+        //     return baseConfigData;
+        // });
+        const newTableData = [...props.baseConfigData.tableData,defaultRoute]; 
+        props.setBaseConfigData(prevData=>({
+            ...prevData,
+            tableData:newTableData
+        }))
 
     }
     const getColumn = () => {
-        if (routeAlgorighm == "WeightBasedRoute") {
+        if (props.baseConfigData.routeAlgorighm == "WeightBasedRoute") {
             const weightColumn = {
                 title: 'Weight',
                 dataIndex: 'weight',
@@ -277,7 +278,7 @@ function BaseConfig(props) {
             };
             return [columns[0], weightColumn, columns[1]]
         }
-        if (routeAlgorighm == "HeaderBasedRoute") {
+        if (props.baseConfigData.routeAlgorighm == "HeaderBasedRoute") {
             const headerKeyColumn = {
                 title: 'Header Key',
                 dataIndex: 'headerkey',
@@ -298,7 +299,12 @@ function BaseConfig(props) {
         return columns;
     }
     const onRouteAlgorighmChange = (value) => {
-        setRouteAlgorighm(value);
+          props.setBaseConfigData(prevData=>({
+            ...prevData,
+            routeAlgorighm:value
+        }))
+
+        // setRouteAlgorighm(value);
     };
     const onFinish = (values) => {
         console.log(values);
@@ -314,6 +320,12 @@ function BaseConfig(props) {
         let oldData=props.port;
         props.setAppConfig(e.target.value);
         console.log(oldData);
+    }
+    const prefixInputOnchange=(e)=>{
+        props.setBaseConfigData(prevData=>({
+            ...prevData,
+            prefix:e.target.value
+        }))
     }
     return (
         <div style={{padding:20}}>
@@ -354,7 +366,7 @@ function BaseConfig(props) {
                     },
                 ]}
             >
-                <Input />
+                <Input onChange={prefixInputOnchange}/>
             </Form.Item>
             <Form.Item
                 name="routeAlgorighm"

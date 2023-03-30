@@ -37,9 +37,9 @@ const tailLayout = {
 
 
 function Ratelimit(props) {
-    const [ratelimitType, setRatelimitType] = useState("None");
-    const [limitLocationType, setLimitLocationType] = useState("ip");
-    const [form] = Form.useForm();
+    // const [ratelimitType, setRatelimitType] = useState("None");
+    // const [limitLocationType, setLimitLocationType] = useState("ip");
+    // const [form] = Form.useForm();
 
     const ratelimitSelectOption = () => {
         return [
@@ -58,22 +58,30 @@ function Ratelimit(props) {
         ];
     }
     const handleRatelimitTypeOptionOnChange = (value) => {
-        setRatelimitType(value);
+        props.setRatelimitData(previousState=>({
+            ...previousState,
+            ratelimitType:value
+        }));
+        // setRatelimitType(value);
     };
     const onGenderChange = (value) => {
 
     };
     const onLimitLocationChange = (value) => {
-        setLimitLocationType(value);
+        // setLimitLocationType(value);
+        props.setRatelimitData(previousState=>({
+            ...previousState,
+            limitLocationType:value
+        }));
     };
     const onFinish = (values) => {
         console.log(values);
     };
     const onReset = () => {
-        form.resetFields();
+        props.form.resetFields();
     };
     const onFill = () => {
-        form.setFieldsValue({
+        props.form.setFieldsValue({
             note: 'Hello world!',
             gender: 'male',
         });
@@ -85,7 +93,7 @@ function Ratelimit(props) {
                 <Col span={24} >
                     <Form
                         {...layout}
-                        form={form}
+                        form={props.form}
                         name="control-hooks"
                         onFinish={onFinish}
 
@@ -122,7 +130,7 @@ function Ratelimit(props) {
                             </Select>
                         </Form.Item>
 
-                        {ratelimitType=="TokenBucketAlgorithm"?
+                        {props.ratelimitData.ratelimitType=="TokenBucketAlgorithm"?
                         <Form.Item
                             name="bucketCapacity"
                             label="Bucket Capacity"
@@ -147,7 +155,7 @@ function Ratelimit(props) {
                             <Row>
                                 <Col span={6}>
                                     <Select
-                                        defaultValue={limitLocationType}
+                                        defaultValue={props.ratelimitData.limitLocationType}
                                         onChange={onLimitLocationChange}
                                     >
                                         <Option value="ip">Ip</Option>
@@ -156,7 +164,7 @@ function Ratelimit(props) {
 
                                     </Select>
                                 </Col>
-                                {limitLocationType == "header" ? <>
+                                {props.ratelimitData.limitLocationType == "header" ? <>
                                     <Col offset={1} span={8}>
                                         <Input placeholder='Header Key' />
 
@@ -187,7 +195,7 @@ function Ratelimit(props) {
             <Row>
                 <Col span={4} offset={6}>
                     <Select
-                        defaultValue={ratelimitType}
+                        defaultValue={props.ratelimitData.ratelimitType}
                         style={{ width: 180 }}
                         options={ratelimitSelectOption()}
                         onChange={handleRatelimitTypeOptionOnChange}
@@ -195,7 +203,7 @@ function Ratelimit(props) {
                 </Col>
                 <Col span={20}></Col>
                 <Col span={24}>
-                    {ratelimitType=="None"?<></>:tokenBucketDiv()}
+                    {props.ratelimitData.ratelimitType=="None"?<></>:tokenBucketDiv()}
                 </Col>
             </Row>
         </div>
