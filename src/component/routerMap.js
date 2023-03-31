@@ -1,10 +1,10 @@
 
 import DashboardPage from './dashboardPage';
-import HttpPage from './httpPage';
+import ListenerListPage from './listenerListPage';
 import ConfigPage from './configPage';
 const router = [
      {
-        path: '/dashboard',
+        path: '/',
         component: DashboardPage,
         auth: false
     },{
@@ -12,9 +12,11 @@ const router = [
         component: ConfigPage,
         auth: false
     },{
-        path: '/httpPage',
-        component: HttpPage,
+        path: '/listenerlist',
+        component: ListenerListPage,
         auth: false
+    },{
+        path:'/',
     }
 ]
 export default router;

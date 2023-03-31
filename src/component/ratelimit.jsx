@@ -198,7 +198,7 @@ function Ratelimit(props) {
             <Row>
                 <Col span={4} offset={6}>
                     <Select
-                        defaultValue={props.ratelimitData.ratelimitType}
+                        defaultValue={props.ratelimitData?.ratelimitType?props.ratelimitData?.ratelimitType:"None"}
                         style={{ width: 180 }}
                         options={ratelimitSelectOption()}
                         onChange={handleRatelimitTypeOptionOnChange}
@@ -206,7 +206,7 @@ function Ratelimit(props) {
                 </Col>
                 <Col span={20}></Col>
                 <Col span={24}>
-                    {props.ratelimitData.ratelimitType === "None" ? <></> : tokenBucketDiv()}
+                    {(!props.ratelimitData?.ratelimitType||props.ratelimitData.ratelimitType === "None") ? <></> : tokenBucketDiv()}
                 </Col>
             </Row>
         </div>

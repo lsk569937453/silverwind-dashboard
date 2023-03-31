@@ -42,31 +42,31 @@ class App extends Component {
 
   }
 
-  componentWillMount() {
-    var storage = window.localStorage;
-    var token = storage.getItem("token");
-    console.log(token);
-    if (token === undefined) {
-      this.setState({
-        hasLogin: false
-      });
-    }
-    Request.get("api/checkStatus").then(res => {
-      if (res.data.resCode ===0) {
-        this.setState({
-          userMail: res.data.resMessage
-        });
-      } else {
-        this.setState({
-          hasLogin: false
-        });
-      }
-    }).catch((e)=>{
-      this.setState({
-        hasLogin: false
-      });
-    });
-  }
+  // componentWillMount() {
+  //   var storage = window.localStorage;
+  //   var token = storage.getItem("token");
+  //   console.log(token);
+  //   if (token === undefined) {
+  //     this.setState({
+  //       hasLogin: false
+  //     });
+  //   }
+  //   Request.get("api/checkStatus").then(res => {
+  //     if (res.data.resCode ===0) {
+  //       this.setState({
+  //         userMail: res.data.resMessage
+  //       });
+  //     } else {
+  //       this.setState({
+  //         hasLogin: false
+  //       });
+  //     }
+  //   }).catch((e)=>{
+  //     this.setState({
+  //       hasLogin: false
+  //     });
+  //   });
+  // }
 
   getKey(){
     return CommonUtils.guid();
@@ -81,20 +81,20 @@ class App extends Component {
             <Row>
               
               <ColCss span={2} offset={4}>
-                <Link to="/dashboard">
+                <Link to="/">
                   <h4>SilverWind-Dashboard</h4>
                 </Link>
               </ColCss>
               <ColCss span={2} offset={1} >
-                <Link to="/httpPage">
-                  <h4>Config</h4>
+                <Link to="/listenerlist">
+                  <h4>Listener List</h4>
                 </Link>
               </ColCss>
-              <ColCss span={2} >
+              {/* <ColCss span={2} >
                 <Link to="/">
                   <h4>TCP</h4>
                 </Link>
-              </ColCss>
+              </ColCss> */}
 
             
             </Row>

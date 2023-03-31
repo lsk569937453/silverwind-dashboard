@@ -23,27 +23,8 @@ const layout = {
 function BaseConfig(props) {
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
-    // const [tableData, setTableData] = useState([]);
     const [editingKey, setEditingKey] = useState('');
-    // const [port,setPort]=useState(props.port);
-    // const [prefix,setPrefix]=useState(props.appConfig?.matcher?.prefix);
-    // useEffect(() => {
-    //     setPrefix(props.appConfig?.matcher?.prefix);
-    //     setRouteAlgorighm(props.appConfig?.route_cluster?.type);
-    //     // const defaultRoute = { endpoint: "http://192.168.0.1", key: key, weight: 100, headerkey: "user-agent", headerValueType: "Text", headerValueMatch: "test" };
 
-    //     let tableData=props.appConfig?.route_cluster?.routes.map(item=>({
-    //         endpoint:item.base_route.endpoint,
-    //         key:CommonUtils.guid(),
-    //         weight:item.weight?item.weight:100,
-    //         headerkey: item.header_key?item.header_key:"user-agent",
-    //         headerValueType: item.header_value_mapping_type?.type?item.header_value_mapping_type?.type:"Text", 
-    //         headerValueMatch: "test"
-
-    //     }));
-    //     setTableData(tableData);
-      
-    // }, [props.appConfig]);
     const isEditing = (record) => record.key === editingKey;
 
     const EditableCell = ({
@@ -67,17 +48,17 @@ function BaseConfig(props) {
                 }}
                 options={[
                     {
-                        value: 'Text',
+                        value: 'TEXT',
                         label: 'Text',
                     },
                     {
-                        value: 'Regex',
+                        value: 'REGEX',
                         label: 'Regex',
                     },
-                    {
-                        value: 'Split',
-                        label: 'Split',
-                    },
+                    // {
+                    //     value: 'SPLIT',
+                    //     label: 'Split',
+                    // },
 
                 ]}
             />
@@ -108,10 +89,7 @@ function BaseConfig(props) {
         );
     };
 
-    // const handleEditButtonOnClick = (record) => {
-    //     const { key } = record;
-    //     setTableData(tableData.filter(item => item.key != key))
-    // }
+
     const edit = (record) => {
         form2.setFieldsValue({
             name: '',
@@ -128,12 +106,6 @@ function BaseConfig(props) {
             ...prevData,
             tableData:newTableData
         }))
-        // props.setBaseConfigData((baseConfigData)=>{
-        //     const tableData=baseConfigData.tableData;
-        //     baseConfigData.tableData=tableData.filter(item => item.key != key);
-        //     return baseConfigData;
-        // });
-        // setTableData(tableData=>tableData.filter(item=>item.key!=record.key))
     };  
     const cancel = () => {
         setEditingKey('');
@@ -149,7 +121,6 @@ function BaseConfig(props) {
                     ...item,
                     ...row,
                 });
-                // setTableData(newData);
                 props.setBaseConfigData(prevData=>({
                     ...prevData,
                     tableData:newData
@@ -158,7 +129,6 @@ function BaseConfig(props) {
                 setEditingKey('');
             } else {
                 newData.push(row);
-                // setTableData(newData);
                 props.setBaseConfigData(prevData=>({
                     ...prevData,
                     tableData:newData
@@ -235,14 +205,9 @@ function BaseConfig(props) {
     });
     const addRowButtonClick = () => {
         const key = CommonUtils.guid();
-        const defaultRoute = { endpoint: "http://192.168.0.1:4450", key: key, weight: 100, headerkey: "user-agent", headerValueType: "Text", headerValueMatch: "test" };
-        // setTableData(tableData => [...tableData, defaultRoute]);
-        console.log(defaultRoute);
-        // props.setBaseConfigData(prevStyle =>{
-        //     baseConfigData.tableData.push(defaultRoute);
-        //     return baseConfigData;
-        // });
-        const newTableData = [...props.baseConfigData.tableData,defaultRoute]; 
+        const defaultRoute = { endpoint: "http://192.168.0.1:4450", key: key, weight: 100, headerkey: "user-agent", headerValueType: "TEXT", headerValueMatch: "test" };
+        const oldData=props.baseConfigData?.tableData?props.baseConfigData?.tableData:[];
+        const newTableData = [...oldData,defaultRoute]; 
         props.setBaseConfigData(prevData=>({
             ...prevData,
             tableData:newTableData
@@ -292,10 +257,11 @@ function BaseConfig(props) {
     };
 
 
-    const handlePortInputChange=(e)=>{
-        let oldData=props.port;
-        props.setAppConfig(e.target.value);
-        console.log(oldData);
+    const handlePortInputChange=(value)=>{
+        props.setBaseConfigData(prevData=>({
+            ...prevData,
+            port:value
+        }))
     }
     const prefixInputOnchange=(e)=>{
         props.setBaseConfigData(prevData=>({
@@ -306,7 +272,6 @@ function BaseConfig(props) {
     return (
         <div style={{padding:20}}>
         <Form {...layout} form={form1} name="control-hooks" onFinish={onFinish}
-            // initialValues={{ routeAlgorighm: routeAlgorighm}}
             fields={[
                 {
                 name:["port"],
@@ -322,6 +287,8 @@ function BaseConfig(props) {
                 }
             ]}
         >
+            {
+                props.baseConfigData.isCreate?<></>:
             <Form.Item
                 name="port"
                 label="Port"
@@ -330,9 +297,8 @@ function BaseConfig(props) {
                         required: true,
                     },
                 ]}>
-                    {/* <div>{props.appConfig.listen_port}</div> */}
-                <Input  onChange={handlePortInputChange}/>
-            </Form.Item>
+                <InputNumber  onChange={handlePortInputChange} min={0} max={65535}/>
+            </Form.Item>}
             <Form.Item
                 name="prefix"
                 label="Prefix"
@@ -367,27 +333,7 @@ function BaseConfig(props) {
                 </Select>
 
             </Form.Item>
-            {/* <Form.Item
-                name="routeCluster"
-                noStyle
-                shouldUpdate={(prevValues, currentValues) => prevValues.gender !== currentValues.gender}
-            >
-                {({ getFieldValue }) =>
-                    getFieldValue('gender') === 'other' ? (
-                        <Form.Item
-                            name="customizeGender"
-                            label="Customize Gender"
-                            rules={[
-                                {
-                                    required: true,
-                                },
-                            ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                    ) : null
-                }
-            </Form.Item> */}
+            
 
             <Form.Item
                 wrapperCol={{ span: 16 }}
@@ -424,11 +370,7 @@ function BaseConfig(props) {
 
             </Form.Item>
 
-            {/* <Form.Item {...tailLayout}>
-                <Button type="primary" htmlType="submit">
-                    Submit
-                </Button>
-            </Form.Item> */}
+         
         </Form>
         </div>
     );

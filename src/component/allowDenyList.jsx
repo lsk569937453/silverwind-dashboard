@@ -23,7 +23,7 @@ function AllowDenyList(props) {
     };
     const renderAllowDenyList = () => {
         const allowDenyList=props.allowDenyData?.allowDenyList;
-        if(allowDenyList===null||allowDenyList.length===0){
+        if(!allowDenyList||allowDenyList.length===0){
             return;
         }
 
@@ -76,7 +76,12 @@ function AllowDenyList(props) {
             "value": !flag ? "" : ipInput,
             "key": key,
         };
-        const newAllowDenyList=[...props.allowDenyData.allowDenyList, data];
+        let oldData=props.allowDenyData?.allowDenyList;
+        if(!oldData){
+            oldData=[];
+        }
+
+        const newAllowDenyList=[...oldData, data];
         props.setAllowDenyData({
             allowDenyList:newAllowDenyList
         });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col,  Card, Button,  Tabs} from 'antd';
+import { Row, Col, Card, Button, message, Tabs } from 'antd';
 import { useLocation } from 'react-router-dom'
 
 import Request from '../utils/axiosUtils'
@@ -31,30 +31,31 @@ function ConfigPage(props) {
     const [allowDenyData, setAllowDenyData] = useState({})
     const [authenticationData, setAuthenticationData] = useState({})
     const [ratelimitData, setRatelimitData] = useState({})
-    const [port, setPort] = useState('undefined');
-    const [routeId, setRouteId] = useState('undefined');
+    const [apiServiceId, setApiServiceId] = useState(undefined);
+    const [routeId, setRouteId] = useState(undefined);
     // const ratelimitForm=Form.useForm();
     const location = useLocation();
     const searchParam = new URLSearchParams(location.search);
     useEffect(() => {
-        var port = searchParam.get("port");
-        if (port === undefined || port === null) {
+        var currentApiServiceId = searchParam.get("apiServiceId");
+        if (!currentApiServiceId) {
             return;
         }
         var routeId = searchParam.get("routeId");
-        if (routeId === undefined || routeId === null) {
+        if (!routeId) {
             return;
         }
-        setPort(port);
+        setApiServiceId(currentApiServiceId);
         setRouteId(routeId);
-        requestAppConfig(port, routeId);
+        requestAppConfig(currentApiServiceId,routeId);
     }, []);
-    const requestAppConfig = (currentPort, routeId) => {
+    const requestAppConfig = (currentApiServiceId, routeId) => {
         Request.get("/appConfig").then(res => {
             if (res.data.response_code === 0) {
-                let apiConfigs = res.data.response_object.api_service_config.filter(item => item.listen_port === currentPort)[0].service_config.routes.filter(item => item.route_id === routeId)[0];
+                const apiServiceConfig=res.data.response_object.api_service_config.filter(item => item.api_service_id === currentApiServiceId)[0];
+                const apiConfigs = apiServiceConfig.service_config.routes.filter(item => item.route_id === routeId)[0];
                 setAppConfig(apiConfigs);
-                constructConfigData(apiConfigs, currentPort);
+                constructConfigData(apiConfigs, apiServiceConfig.listen_port);
                 constructAllowDenyData(apiConfigs);
                 constructAuthenticationData(apiConfigs);
                 constructRatelimitData(apiConfigs);
@@ -69,7 +70,7 @@ function ConfigPage(props) {
             key: CommonUtils.guid(),
             weight: item.weight ? item.weight : 100,
             headerkey: item.header_key ? item.header_key : "user-agent",
-            headerValueType: item.header_value_mapping_type?.type ? item.header_value_mapping_type?.type : "Text",
+            headerValueType: item.header_value_mapping_type?.type ? item.header_value_mapping_type?.type : "TEXT",
             headerValueMatch: "test"
         }));
         const port = currentPort;
@@ -79,7 +80,8 @@ function ConfigPage(props) {
             tableData: tableData,
             port: port,
             prefix: prefix,
-            routeAlgorighm: routeAlgorighm
+            routeAlgorighm: routeAlgorighm,
+            isCreate:currentPort,
         });
     }
     const constructAllowDenyData = (appConfig) => {
@@ -107,7 +109,7 @@ function ConfigPage(props) {
     const constructAuthenticationData = (appConfig) => {
         let defaultType = "None";
         let type = appConfig?.authentication?.type;
-        if (type == null) {
+        if (!type) {
             type = defaultType;
         }
 
@@ -131,12 +133,12 @@ function ConfigPage(props) {
         setRatelimitData({
             ratelimitType: type,
             limitLocationType: limitLocationType,
-            bucketCapacity:appConfig.ratelimit?.capacity,
-            ratePerUnit:appConfig.ratelimit?.rate_per_unit,
-            ip:appConfig.ratelimit?.limit_location?.value,
-            headerKey:appConfig.ratelimit?.limit_location?.key,
-            headerValue:appConfig.ratelimit?.limit_location?.value,
-            unitType:appConfig.ratelimit?.unit?.type,
+            bucketCapacity: appConfig.ratelimit?.capacity,
+            ratePerUnit: appConfig.ratelimit?.rate_per_unit,
+            ip: appConfig.ratelimit?.limit_location?.value,
+            headerKey: appConfig.ratelimit?.limit_location?.key,
+            headerValue: appConfig.ratelimit?.limit_location?.value,
+            unitType: appConfig.ratelimit?.unit?.type,
             // form:ratelimitForm,
         });
     }
@@ -165,134 +167,267 @@ function ConfigPage(props) {
 
     };
     const handleSaveButtonOnClick = () => {
-        if (port === undefined) {
-
-        } else {
-            updateRoute();
+        if (!checkBeforeRequest()) {
+            return false;
         }
-    }
-    const updateRoute = () => {
-        // ratelimitForm.submit();
-        const isWeightRoute = baseConfigData.routeAlgorighm === "WeightBasedRoute";
-        const isHeaderBasedRoute = baseConfigData.routeAlgorighm === "HeaderBasedRoute";
+        if (!apiServiceId) {
+            createApiServiceConfigOrAddRoute();
+        } else {
+            updateRouteByRouteId();
+        }
 
-        const routes = baseConfigData.tableData.map((item) => ({
-            "base_route": {
-                "endpoint": item.endpoint,
-                "try_file": null
-            },
-            ...(isWeightRoute) && { weight: item.weight },
-            ...(isHeaderBasedRoute) && { header_key: item.weight },
-            ...(isHeaderBasedRoute) && {
-                header_value_mapping_type: {
-                    type: item.headerValueType,
-                    value: item.headerValueMatch
+    }
+    const checkBeforeRequest = () => {
+        if (!baseConfigData.port) {
+            message.error('Please fill the port!');
+            return false;
+        }
+        if (!baseConfigData.prefix) {
+            message.error('Please fill the prefix!');
+            return false;
+        }
+        if (!baseConfigData.routeAlgorighm) {
+            message.error('Please select the routeAlgorighm!');
+            return false;
+        }
+        if (!baseConfigData.tableData || baseConfigData.tableData.length === 0) {
+            message.error('Please fill the route!');
+            return false;
+        }
+        if(authenticationData.authenticationType&&authenticationData.authenticationType!=="None"){
+            if(authenticationData.authenticationType==="ApiKeyAuth"){
+                if(!authenticationData.authenticationObj?.key||!authenticationData.authenticationObj?.value){
+                    message.error('Please fill the key and value for Authentication!');
+                    return false;
                 }
-            },
-        }));
-        const newBaseRoute = {
-            "route_id": routeId,
-            "host_name": null,
-            "matcher": {
-                "prefix": baseConfigData.prefix,
-                "prefix_rewrite": "ssss"
-            },
-            "allow_deny_list": collectAllowDenyData(),
-            "authentication": collectAuthenticationData(),
-            "ratelimit": collectRatelimitData(),
-            "route_cluster": {
-                "type": baseConfigData.routeAlgorighm,
-                "routes": routes
+            }else if(authenticationData.authenticationType==="BasicAuth"){
+                if(!authenticationData.authenticationObj?.credentials){
+                    message.error('Please fill the credentials for Authentication!');
+                    return false;
+                }
             }
         }
+        if(ratelimitData.ratelimitType&&ratelimitData.ratelimitType!=="None"){
+            if(ratelimitData.ratelimitType==="TokenBucketRateLimit"){
+                if(!ratelimitData.bucketCapacity){
+                    message.error('Please fill the bucket capacity for rate limit!');
+                    return false;
+                }
+            }
+            if(!ratelimitData.ratePerUnit){
+                message.error('Please fill the rate per unit for rate limit!');
+                return false;
+            }
+            if(!ratelimitData.unitType){
+                message.error('Please fill the ratelimit unit type for rate limit!');
+                return false;
+            }
+            if(!ratelimitData.limitLocationType){
+                message.error('Please fill the limit location type for rate limit!');
+                return false;
+            }
+            
+            if(ratelimitData.limitLocationType==="IP"){
+                if(!ratelimitData.ip){
+                    message.error('Please fill the ip for rate limit!');
+                    return false;
+                }
+                if(!CommonUtils.checkIsIPV4(ratelimitData.ip)){
+                    message.error('Please fill the legal ip for rate limit!');
+                    return false;
+                }
+            }
+            if(ratelimitData.limitLocationType==="Header"){
+                if(!ratelimitData.headerKey){
+                    message.error('Please fill the headerKey for rate limit!');
+                    return false;
+                }
+                if(!ratelimitData.headerValue){
+                    message.error('Please fill the headerValue for rate limit!');
+                    return false;
+                }
+            }
+            
+        }
+        return true;
+
+    }
+    const createApiServiceConfigOrAddRoute = () => {
+        const newRoute = createRoute();
+        const newServiceConfig = {
+            "listen_port": baseConfigData.port,
+            "service_config": {
+                "server_type": "HTTP",
+                "cert_str": null,
+                "key_str": null,
+                "routes": [
+                    newRoute
+                ]
+            }
+        };
         Request.get("/appConfig").then(res => {
             if (res.data.response_code === 0) {
-                let apiConfigs = res.data.response_object.api_service_config;
-                setAppConfig(apiConfigs);
-                let newApiConfigs = apiConfigs.map(config => {
-                    if (config.listen_port === port) {
-                        config.service_config.routes = config.service_config.routes.map(item => {
-                            if (item.route_id === routeId) {
-                                return newBaseRoute;
-                            }
-                            return item;
-                        });
-                    }
-                    return config;
-                });
-
-
+                const apiConfigs = res.data.response_object.api_service_config;
+                const portIsContained=apiConfigs.some(item=>item.listen_port===baseConfigData.port);
+                let newApiConfigs={};
+                if(portIsContained){
+                     newApiConfigs = apiConfigs.map(config => {
+                        if (config.listen_port === baseConfigData.port) {
+                            config.service_config.routes = [...config.service_config.routes,newRoute];
+                        return config;
+                        }
+                    }); 
+                }else{
+                    newApiConfigs=[...apiConfigs,newServiceConfig];
+                }
+    
+    
                 Request.post("/appConfig", newApiConfigs).then(res => {
-                    // window.location.reload();
+                    message.info({
+                        content: 'Save listener successfully!',
+                        duration: 3,
+                        onClose: () => {
+                        let { history } = props;
+                        history.push('/listenerlist');
+                        }
+                      });
+                    // message.info("Save listener successfully!").onClose(()=>{
+                    //     let { history } = props;
+                    //     history.push('/listenerlist');
+                    // });
                 });
-
+    
             }
         });
-    }
-    const collectAllowDenyData = () => {
-        return allowDenyData.allowDenyList.map((item) => ({
-            limit_type: item.type,
-            value: item.value
-        }));
     };
-    const collectAuthenticationData = () => {
-        if (authenticationData.authenticationType === "None") {
-            return null;
-        }
-        const isApiKeyAuth = authenticationData.authenticationType === "ApiKeyAuth";
-        const isBasicAuth = authenticationData.authenticationType === "BasicAuth";
-        return {
-            type: authenticationData.authenticationType,
-            ...(isApiKeyAuth) && { key: authenticationData.authenticationObj.key },
-            ...(isApiKeyAuth) && { value: authenticationData.authenticationObj.value },
-            ...(isBasicAuth) && { credentials: authenticationData.authenticationObj.credentials },
 
-        };
-    };
-    const collectRatelimitData = () => {
-        if(ratelimitData.ratelimitType==="None"){
-            return null;
-        }
-    
-        const isTokenBucket=ratelimitData.ratelimitType==="TokenBucketRateLimit";
-        const isLocationOnIP=ratelimitData.limitLocationType==="IP";
-        const data= {
-            type: ratelimitData.ratelimitType,
-            rate_per_unit: ratelimitData.ratePerUnit,
-            unit: {
-                type: ratelimitData.unitType
-            },
-            ...(isTokenBucket) && { capacity: ratelimitData.bucketCapacity},
-            limit_location: {
-                type: ratelimitData.limitLocationType,
-                ...(isLocationOnIP) && {value: ratelimitData.ip},
-                ...(!isLocationOnIP) && {key: ratelimitData.headerKey},
-                ...(!isLocationOnIP) && {value: ratelimitData.headerValue},
 
+const createRoute = () => {
+    const isWeightRoute = baseConfigData.routeAlgorighm === "WeightBasedRoute";
+    const isHeaderBasedRoute = baseConfigData.routeAlgorighm === "HeaderBasedRoute";
+
+    const routes = baseConfigData.tableData.map((item) => ({
+        "base_route": {
+            "endpoint": item.endpoint,
+            "try_file": null
+        },
+        ...(isWeightRoute) && { weight: item.weight },
+        ...(isHeaderBasedRoute) && { header_key: item.headerkey },
+        ...(isHeaderBasedRoute) && {
+            header_value_mapping_type: {
+                type: item.headerValueType,
+                value: item.headerValueMatch
             }
-        };
-        return data;
+        },
+    }));
+    return {
+        "route_id": routeId,
+        "host_name": null,
+        "matcher": {
+            "prefix": baseConfigData.prefix,
+            "prefix_rewrite": "ssss"
+        },
+        "allow_deny_list": collectAllowDenyData(),
+        "authentication": collectAuthenticationData(),
+        "ratelimit": collectRatelimitData(),
+        "route_cluster": {
+            "type": baseConfigData.routeAlgorighm,
+            "routes": routes
+        }
+    };
+}
+const updateRouteByRouteId = () => {
+    const newBaseRoute = createRoute();
+    Request.get("/appConfig").then(res => {
+        if (res.data.response_code === 0) {
+            let apiConfigs = res.data.response_object.api_service_config;
+            let newApiConfigs = apiConfigs.map(config => {
+                if (config.api_service_id === apiServiceId) {
+                    config.service_config.routes = config.service_config.routes.map(item => {
+                        if (item.route_id === routeId) {
+                            return newBaseRoute;
+                        }
+                        return item;
+                    });
+                }
+                return config;
+            });
+
+
+            Request.post("/appConfig", newApiConfigs).then(res => {
+                message.info("Save listener successfully!");
+            });
+
+        }
+    });
+}
+const collectAllowDenyData = () => {
+    if (!allowDenyData.allowDenyList) {
+        return null;
+    }
+    return allowDenyData.allowDenyList.map((item) => ({
+        limit_type: item.type,
+        value: item.value
+    }));
+};
+const collectAuthenticationData = () => {
+    if (!authenticationData.authenticationType||authenticationData.authenticationType === "None") {
+        return null;
+    }
+    const isApiKeyAuth = authenticationData.authenticationType === "ApiKeyAuth";
+    const isBasicAuth = authenticationData.authenticationType === "BasicAuth";
+    return {
+        type: authenticationData.authenticationType,
+        ...(isApiKeyAuth) && { key: authenticationData.authenticationObj.key },
+        ...(isApiKeyAuth) && { value: authenticationData.authenticationObj.value },
+        ...(isBasicAuth) && { credentials: authenticationData.authenticationObj.credentials },
 
     };
+};
+const collectRatelimitData = () => {
+    if (!ratelimitData.ratelimitType||ratelimitData.ratelimitType === "None") {
+        return null;
+    }
 
-    return (
-        <div style={{ paddingTop: "20px", background: "#f5f5f7", height: "100%" }}>
-            <RowDiv>
-                <Col xs={{ span: 16, offset: 4 }} style={{ height: "60vh" }}>
-                    <Card title={port === undefined ? "New Config" : "Change Config"} extra={<Button type="primary" onClick={handleSaveButtonOnClick}>Save</Button>}>
-                        <TabsDiv
-                            // centered={true}
-                            defaultActiveKey="1"
-                            type="card"
-                            size="large"
-                            items={getTabs()}
-                        />
-                    </Card>
-                </Col>
+    const isTokenBucket = ratelimitData.ratelimitType === "TokenBucketRateLimit";
+    const isLocationOnIP = ratelimitData.limitLocationType === "IP";
+    const data = {
+        type: ratelimitData.ratelimitType,
+        rate_per_unit: ratelimitData.ratePerUnit,
+        unit: {
+            type: ratelimitData.unitType
+        },
+        ...(isTokenBucket) && { capacity: ratelimitData.bucketCapacity },
+        limit_location: {
+            type: ratelimitData.limitLocationType,
+            ...(isLocationOnIP) && { value: ratelimitData.ip },
+            ...(!isLocationOnIP) && { key: ratelimitData.headerKey },
+            ...(!isLocationOnIP) && { value: ratelimitData.headerValue },
 
-            </RowDiv>
-        </div>
-    );
+        }
+    };
+    return data;
+
+};
+
+return (
+    <div style={{ paddingTop: "20px", background: "#f5f5f7", height: "100%" }}>
+        <RowDiv>
+            <Col xs={{ span: 16, offset: 4 }} style={{ height: "60vh" }}>
+                <Card title={apiServiceId === undefined ? "New Config" : "Change Config"} extra={<Button type="primary" onClick={handleSaveButtonOnClick}>Save</Button>}>
+                    <TabsDiv
+                        // centered={true}
+                        defaultActiveKey="1"
+                        type="card"
+                        size="large"
+                        items={getTabs()}
+                    />
+                </Card>
+            </Col>
+
+        </RowDiv>
+    </div>
+);
 
 }
 export default withRouter(ConfigPage);

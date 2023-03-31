@@ -79,7 +79,7 @@ function Authentication(props) {
             <Row>
                 <Col  offset={6}>
                     <Select
-                        defaultValue={props.authenticationData?.authenticationType}
+                        defaultValue={props.authenticationData?.authenticationType?props.authenticationData?.authenticationType:"None"}
                         style={{ width: 180 }}
                         options={authenticationOption()}
                         onChange={handleAuthenticationTypeOptionOnChange}
