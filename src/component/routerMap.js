@@ -2,6 +2,7 @@
 import DashboardPage from './dashboardPage';
 import ListenerListPage from './listenerListPage';
 import ConfigPage from './configPage';
+import StartupPage from './startupPage';
 const router = [
      {
         path: '/',
@@ -16,7 +17,9 @@ const router = [
         component: ListenerListPage,
         auth: false
     },{
-        path:'/',
+        path: '/startup',
+        component: StartupPage,
+        auth: false
     }
 ]
 export default router;

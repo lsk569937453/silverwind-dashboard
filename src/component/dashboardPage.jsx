@@ -1,9 +1,10 @@
-import React from 'react'
-import { Row, Col } from 'antd';
+import React,{ useState, useEffect } from 'react'
+import { Row, Col,Input,Button } from 'antd';
 
 import { withRouter } from 'react-router-dom'
 
 import styled from 'styled-components'
+import useLocalStorage from "use-local-storage";
 
 import ReactECharts from 'echarts-for-react';
 
@@ -41,28 +42,9 @@ background: rgb(245, 245, 247);
 
 function DashboardPage(props) {
 
-    
+    const [host, setHost] = useLocalStorage("host",undefined);
    
-
-    // useEffect(() => {
-    //     var currentChannelCode = searchParam.get("channelCode");
-    //     console.log(currentChannelCode);
-    //     if (currentChannelCode != null) {
-    //         setChannelCode(currentChannelCode);
-    //     } else {
-    //         currentChannelCode = 0;
-    //     }
-
-    //     setPageState(true);
-    //     isWx();
-
-    //     requestCurrentAndroid(currentChannelCode);
-
-    // }, [])
-    
-
-
-    
+    const [port, setPort] = useLocalStorage("port",undefined);
     const getHttpOptions = () => {
         return {
             grid: { top: 40, right: 8, bottom: 40, left: 20,containLabel: true  },
@@ -115,6 +97,7 @@ function DashboardPage(props) {
             },
         };
     };
+   
     return (
         <div style={{ paddingTop: "20px", background: "#f5f5f7", height: "100%" }}>
 
@@ -125,21 +108,17 @@ function DashboardPage(props) {
                     <RowDiv >
 
                         <Col xs={{ span: 24 }} >
+                    
                             <EntrypointsDiv>Entrypoints:</EntrypointsDiv>
                             <Maindiv>
                                 <RowDiv gutter={4} justify="start" style={{ paddingBottom: "20px" }} >
                                     <Col span={4} >
                                         <LineDiv>
-                                            <APIFontDiv>REST API</APIFontDiv>
-                                            <FontDiv>:8760</FontDiv>
+                                            <APIFontDiv>ADMIN API</APIFontDiv>
+                                            <FontDiv>http://{host}:{port}</FontDiv>
                                         </LineDiv>
                                     </Col>
-                                    <Col span={4} >
-                                        <LineDiv>
-                                            <APIFontDiv>Web</APIFontDiv>
-                                            <FontDiv>:5470</FontDiv>
-                                        </LineDiv>
-                                    </Col>
+
                                     <Col span={4} >
                                     </Col>
 

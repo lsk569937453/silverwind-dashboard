@@ -6,21 +6,20 @@ var Request = axios.create(
     {
 
         timeout: 1000000,
-        headers: { 'X-Custom-Header': 'foobar', 'userAgent': navigator.userAgent }
+        headers: {    
+         'userAgent': navigator.userAgent,"Access-Control-Allow-Origin": "*"
+        , 'Access-Control-Allow-Methods':'GET,POST'}
     }
 );
-
+// delete axios.defaults.headers.common["Authorization"];
 Request.interceptors.request.use(async config => {
+    const host=JSON.parse(localStorage.getItem("host"));
+    const port=JSON.parse(localStorage.getItem("port"));
+    //  config.baseURL=await getBaseUrl(); 
+    config.baseURL=`http://${host}:${port}/`;
 
-    var storage = window.localStorage;
-    var token=storage.getItem("token");
-    
-    let DefaultOptions = {
-        headers: { "token":token }
-    };
-
-
-    return lodash.merge(config, DefaultOptions);
+     return config; 
+   
 }, error => {
     return Promise.reject(error);
 });

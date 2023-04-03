@@ -1,5 +1,6 @@
-import { React, Component } from 'react';
-
+import  React,  { useState, useEffect }from 'react';
+import useLocalStorage from "use-local-storage";
+import StartupPage from "./component/startupPage"
 import './App.css';
 import router from './component/routerMap'
 import Request from './utils/axiosUtils'
@@ -30,51 +31,23 @@ h4{
 const ColCss = styled(Col)`
 text-align:left;
 `
-class App extends Component {
+function App(props) {
 
+  const [hasLogin, setHasLogin] = useState(true)
+  const [host, setHost] = useLocalStorage("host",undefined);
 
-  constructor(props) {
-    super(props);
-    this.state = ({
-      hasLogin: true,
-      userMail: ""
-    })
+  // let { history } = props;
+  // history.push('/listenerlist');
 
-  }
-
-  // componentWillMount() {
-  //   var storage = window.localStorage;
-  //   var token = storage.getItem("token");
-  //   console.log(token);
-  //   if (token === undefined) {
-  //     this.setState({
-  //       hasLogin: false
-  //     });
-  //   }
-  //   Request.get("api/checkStatus").then(res => {
-  //     if (res.data.resCode ===0) {
-  //       this.setState({
-  //         userMail: res.data.resMessage
-  //       });
-  //     } else {
-  //       this.setState({
-  //         hasLogin: false
-  //       });
-  //     }
-  //   }).catch((e)=>{
-  //     this.setState({
-  //       hasLogin: false
-  //     });
-  //   });
-  // }
-
-  getKey(){
+  const getKey=()=>{
     return CommonUtils.guid();
   }
-  render() {
-    const { hasLogin } = this.state;
-    console.log("haslogin:"+hasLogin);
-    return (
+  const handleResetButtonOnClick=()=>{
+    localStorage.clear();
+    window.location.reload();
+  }
+  const dashboardPage=()=>{
+    return  ( 
       <Router>
         <MainDiv>
           <MenuDiv align="middle" type="flex" justify="center">
@@ -88,6 +61,11 @@ class App extends Component {
               <ColCss span={2} offset={1} >
                 <Link to="/listenerlist">
                   <h4>Listener List</h4>
+                </Link>
+              </ColCss>
+              <ColCss span={2} offset={12}>
+                <Link  onClick={handleResetButtonOnClick}>
+                  <h4>Reset Dashboard</h4>
                 </Link>
               </ColCss>
               {/* <ColCss span={2} >
@@ -105,8 +83,8 @@ class App extends Component {
                 return (
                   <Route key={key} path={item.path} exact render={
                     props => (
-                      !item.auth ? (< item.component {...props} key={this.getKey}/>) :
-                        (hasLogin ? <item.component {...props}  key={this.getKey}/> : <div/>)
+                      !item.auth ? (< item.component {...props} key={getKey}/>) :
+                        (hasLogin ? <item.component {...props}  key={getKey}/> : <div/>)
                     )
                   } />
                 )
@@ -117,6 +95,21 @@ class App extends Component {
       </Router>
     );
   }
+  const mainPage=()=>{
+    if(host){
+      return dashboardPage();
+    }else{
+      return <StartupPage/>;
+    }
+    
+  }
+  return (<>
+    {
+      
+      mainPage()
+    }
+    </>
+  );
 }
 
 export default App;

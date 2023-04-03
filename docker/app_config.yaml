@@ -1,0 +1,13 @@
+- listen_port: 4486
+  service_config:
+    server_type: HTTP
+    routes:
+    - matcher:
+        prefix: /
+        prefix_rewrite: ssss
+      route_cluster:
+        type: RandomRoute
+        routes:
+        - base_route:
+            endpoint: build
+            try_file: null

@@ -43,6 +43,9 @@ function ListenerListPage(props) {
                 });
                 setTableData(tableData);
             }
+        }).catch(error=>{
+            console.error(error);
+            message.error("Cause error when request the silverwind admin port,the error is "+error.message);
         });
 
     }
