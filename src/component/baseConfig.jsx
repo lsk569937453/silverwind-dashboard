@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {   Button, InputNumber,  Typography,  Table,  Form, Input } from 'antd';
+import { Button, InputNumber, Typography, Table, Form, Input } from 'antd';
 
 import { Select } from 'antd';
 
@@ -10,7 +10,7 @@ const { Option } = Select;
 const layout = {
     labelCol: {
         span: 6,
-        
+
     },
     wrapperCol: {
         span: 3,
@@ -18,6 +18,7 @@ const layout = {
 };
 
 
+const { TextArea } = Input;
 
 
 function BaseConfig(props) {
@@ -99,14 +100,14 @@ function BaseConfig(props) {
         });
         setEditingKey(record.key);
     };
-    const handleDeleteButtonClick=(record)=>{
+    const handleDeleteButtonClick = (record) => {
         const { key } = record;
-        const newTableData=props.baseConfigData.tableData.filter(item => item.key !== key);
-        props.setBaseConfigData(prevData=>({
+        const newTableData = props.baseConfigData.tableData.filter(item => item.key !== key);
+        props.setBaseConfigData(prevData => ({
             ...prevData,
-            tableData:newTableData
+            tableData: newTableData
         }))
-    };  
+    };
     const cancel = () => {
         setEditingKey('');
     };
@@ -121,17 +122,17 @@ function BaseConfig(props) {
                     ...item,
                     ...row,
                 });
-                props.setBaseConfigData(prevData=>({
+                props.setBaseConfigData(prevData => ({
                     ...prevData,
-                    tableData:newData
+                    tableData: newData
                 }))
 
                 setEditingKey('');
             } else {
                 newData.push(row);
-                props.setBaseConfigData(prevData=>({
+                props.setBaseConfigData(prevData => ({
                     ...prevData,
-                    tableData:newData
+                    tableData: newData
                 }))
 
                 setEditingKey('');
@@ -173,16 +174,16 @@ function BaseConfig(props) {
                     </span>
                 ) : (
                     <span>
-                    <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)} style={{
-                                marginRight: 8,
-                            }}>
-                        Edit
-                    </Typography.Link>
-                     <Typography.Link disabled={editingKey !== ''} onClick={() => handleDeleteButtonClick(record)} style={{
-                                marginRight: 8,
-                            }}>
-                        Delete
-                    </Typography.Link>
+                        <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)} style={{
+                            marginRight: 8,
+                        }}>
+                            Edit
+                        </Typography.Link>
+                        <Typography.Link disabled={editingKey !== ''} onClick={() => handleDeleteButtonClick(record)} style={{
+                            marginRight: 8,
+                        }}>
+                            Delete
+                        </Typography.Link>
                     </span>
                 );
             },
@@ -206,11 +207,11 @@ function BaseConfig(props) {
     const addRowButtonClick = () => {
         const key = CommonUtils.guid();
         const defaultRoute = { endpoint: "http://192.168.0.1:4450", key: key, weight: 100, headerkey: "user-agent", headerValueType: "TEXT", headerValueMatch: "test" };
-        const oldData=props.baseConfigData?.tableData?props.baseConfigData?.tableData:[];
-        const newTableData = [...oldData,defaultRoute]; 
-        props.setBaseConfigData(prevData=>({
+        const oldData = props.baseConfigData?.tableData ? props.baseConfigData?.tableData : [];
+        const newTableData = [...oldData, defaultRoute];
+        props.setBaseConfigData(prevData => ({
             ...prevData,
-            tableData:newTableData
+            tableData: newTableData
         }))
 
     }
@@ -245,9 +246,17 @@ function BaseConfig(props) {
         return columns;
     }
     const onRouteAlgorighmChange = (value) => {
-          props.setBaseConfigData(prevData=>({
+        props.setBaseConfigData(prevData => ({
             ...prevData,
-            routeAlgorighm:value
+            routeAlgorighm: value
+        }))
+
+        // setRouteAlgorighm(value);
+    };
+    const handleServerTypeOnChange = (value) => {
+        props.setBaseConfigData(prevData => ({
+            ...prevData,
+            serverType: value
         }))
 
         // setRouteAlgorighm(value);
@@ -257,121 +266,192 @@ function BaseConfig(props) {
     };
 
 
-    const handlePortInputChange=(value)=>{
-        props.setBaseConfigData(prevData=>({
+    const handlePortInputChange = (value) => {
+        props.setBaseConfigData(prevData => ({
             ...prevData,
-            port:value
+            port: value
         }))
     }
-    const prefixInputOnchange=(e)=>{
-        props.setBaseConfigData(prevData=>({
+    const handleKeyPermInputChange = (e) => {
+        props.setBaseConfigData(prevData => ({
             ...prevData,
-            prefix:e.target.value
+            keyPerm: e.target.value
+        }))
+    }
+    const handleCertPermInputChange = (e) => {
+        props.setBaseConfigData(prevData => ({
+            ...prevData,
+            certPerm: e.target.value
+        }))
+    }
+    const prefixInputOnchange = (e) => {
+        props.setBaseConfigData(prevData => ({
+            ...prevData,
+            prefix: e.target.value
         }))
     }
     return (
-        <div style={{padding:20}}>
-        <Form {...layout} form={form1} name="control-hooks" onFinish={onFinish}
-            fields={[
-                {
-                name:["port"],
-                value:props.baseConfigData.port
-                },
-                {
-                    name:["prefix"],
-                    value:props.baseConfigData.prefix
-                },
-                {
-                    name:["routeAlgorighm"],
-                    value:props.baseConfigData.routeAlgorighm
-                }
-            ]}
-        >
-            {
-                props.baseConfigData.isCreate?<></>:
-            <Form.Item
-                name="port"
-                label="Port"
-                rules={[
+        <div style={{ padding: 20 }}>
+            <Form {...layout} form={form1} name="control-hooks" onFinish={onFinish}
+                fields={[
                     {
-                        required: true,
+                        name: ["port"],
+                        value: props.baseConfigData.port
                     },
-                ]}>
-                <InputNumber  onChange={handlePortInputChange} min={0} max={65535}/>
-            </Form.Item>}
-            <Form.Item
-                name="prefix"
-                label="Prefix"
-                rules={[
                     {
-                        required: true,
+                        name: ["prefix"],
+                        value: props.baseConfigData.prefix
                     },
+                    {
+                        name: ["routeAlgorighm"],
+                        value: props.baseConfigData.routeAlgorighm
+                    }
                 ]}
             >
-                <Input onChange={prefixInputOnchange}/>
-            </Form.Item>
-            <Form.Item
-                name="routeAlgorighm"
-                label="Route Algorighm"
-                rules={[
-                    {
-                        required: true,
-                    },
-                ]}
-            >
-
-                <Select
-                    placeholder="Select a option and change input text above"
-                    onChange={onRouteAlgorighmChange}
-                    allowClear
+                { props.baseConfigData.isCreate ?<></>:
+                <Form.Item
+                    name="serverType"
+                    label="Server Type"
+                    rules={[
+                        {
+                            required: true,
+                        },
+                    ]}
                 >
-                    <Option value="PollRoute">Poll</Option>
-                    <Option value="RandomRoute">Random</Option>
-                    <Option value="WeightBasedRoute">Weight</Option>
-                    <Option value="HeaderBasedRoute">HeaderBased</Option>
 
-                </Select>
+                    <Select
+                        placeholder="Select the server type!"
+                        onChange={handleServerTypeOnChange}
+                        allowClear
+                    >
+                        <Option value="HTTP">HTTP</Option>
+                        <Option value="HTTPS">HTTPS</Option>
 
-            </Form.Item>
-            
+                    </Select>
 
-            <Form.Item
-                wrapperCol={{ span: 16 }}
-                name="RouteCluster"
-                label="Route Cluster"
-                rules={[
-                    {
-                        required: false,
-                    },
-                ]}
-            >   <div>
-                <Button type="link" onClick={addRowButtonClick}>Add One Route</Button>
+                </Form.Item>}
+                {
+                    (props.baseConfigData?.serverType === "HTTPS") ?
+                        <Form.Item
+                            name="certPerm"
+                            label="Cert Perm"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+                            <TextArea autoSize={{
+                                minRows: 2,
+                                maxRows: 2,
+                            }} onChange={handleCertPermInputChange} />
 
-                <Form form={form2} component={false}>
-                    <Table
-                        components={{
-                            body: {
-                                cell: EditableCell,
-                            },
-                        }}
-                        scroll={{
-                            y: 240,
-                        }}
-                        bordered
-                        dataSource={props.baseConfigData.tableData}
-                        columns={mergedColumns()}
-                        rowClassName="editable-row"
-                        pagination={{
-                            onChange: cancel,
-                        }}
-                    />
-                </Form>
-                </div>
+                        </Form.Item> : <></>
+                }
+                {
+                    (props.baseConfigData?.serverType === "HTTPS") ?
+                        <Form.Item
+                            name="keyPerm"
+                            label="Key Perm"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+                            <TextArea autoSize={{
+                                minRows: 2,
+                                maxRows: 2,
+                            }} onChange={handleKeyPermInputChange} />
 
-            </Form.Item>
+                        </Form.Item> : <></>
+                }
+                {
+                    props.baseConfigData.isCreate ? <></> :
+                        <Form.Item
+                            name="port"
+                            label="Port"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}>
+                            <InputNumber onChange={handlePortInputChange} min={0} max={65535} />
+                        </Form.Item>
+                }
+                <Form.Item
+                    name="prefix"
+                    label="Prefix"
+                    rules={[
+                        {
+                            required: true,
+                        },
+                    ]}
+                >
+                    <Input onChange={prefixInputOnchange} />
+                </Form.Item>
+                <Form.Item
+                    name="routeAlgorighm"
+                    label="Route Algorighm"
+                    rules={[
+                        {
+                            required: true,
+                        },
+                    ]}
+                >
 
-         
-        </Form>
+                    <Select
+                        placeholder="Select a route algorighm!"
+                        onChange={onRouteAlgorighmChange}
+                        allowClear
+                    >
+                        <Option value="PollRoute">Poll</Option>
+                        <Option value="RandomRoute">Random</Option>
+                        <Option value="WeightBasedRoute">Weight</Option>
+                        <Option value="HeaderBasedRoute">HeaderBased</Option>
+
+                    </Select>
+
+                </Form.Item>
+
+
+                <Form.Item
+                    wrapperCol={{ span: 16 }}
+                    name="RouteCluster"
+                    label="Route Cluster"
+                    rules={[
+                        {
+                            required: false,
+                        },
+                    ]}
+                >   <div>
+                        <Button type="link" onClick={addRowButtonClick}>Add One Route</Button>
+
+                        <Form form={form2} component={false}>
+                            <Table
+                                components={{
+                                    body: {
+                                        cell: EditableCell,
+                                    },
+                                }}
+                                scroll={{
+                                    y: 240,
+                                }}
+                                bordered
+                                dataSource={props.baseConfigData.tableData}
+                                columns={mergedColumns()}
+                                rowClassName="editable-row"
+                                pagination={{
+                                    onChange: cancel,
+                                }}
+                            />
+                        </Form>
+                    </div>
+
+                </Form.Item>
+
+
+            </Form>
         </div>
     );
 

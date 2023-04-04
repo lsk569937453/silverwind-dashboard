@@ -21,7 +21,7 @@ const TabsDiv = styled(Tabs)`
 .ant-tabs-content-holder{
     background:white;
 }
-height : 60vh;
+height : 80vh;
 `
 
 
@@ -178,6 +178,21 @@ function ConfigPage(props) {
 
     }
     const checkBeforeRequest = () => {
+        if (!baseConfigData.serverType) {
+            message.error('Please select the server type!');
+            return false;
+        }
+        if(baseConfigData.serverType==="HTTPS"){
+            if (!baseConfigData.certPerm) {
+                message.error('Please fill the cert perm!');
+                return false;
+            }
+            if (!baseConfigData.keyPerm) {
+                message.error('Please fill the key perm!');
+                return false;
+            }
+           
+        }
         if (!baseConfigData.port) {
             message.error('Please fill the port!');
             return false;
@@ -253,13 +268,16 @@ function ConfigPage(props) {
 
     }
     const createApiServiceConfigOrAddRoute = () => {
+        const cert_str=baseConfigData.serverType==="HTTPS"?baseConfigData.certPerm:null;
+        const key_str=baseConfigData.serverType==="HTTPS"?baseConfigData.keyPerm:null;
+
         const newRoute = createRoute();
         const newServiceConfig = {
             "listen_port": baseConfigData.port,
             "service_config": {
-                "server_type": "HTTP",
-                "cert_str": null,
-                "key_str": null,
+                "server_type": baseConfigData.serverType,
+                "cert_str": cert_str,
+                "key_str": key_str,
                 "routes": [
                     newRoute
                 ]
@@ -291,10 +309,11 @@ function ConfigPage(props) {
                         history.push('/listenerlist');
                         }
                       });
-                    // message.info("Save listener successfully!").onClose(()=>{
-                    //     let { history } = props;
-                    //     history.push('/listenerlist');
-                    // });
+                }).catch(error=>{
+                    message.error({
+                        content: 'Save listener error,the error is '+error.message,
+                        duration: 3,
+                      });
                 });
     
             }

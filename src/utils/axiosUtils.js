@@ -72,7 +72,7 @@ Request.interceptors.response.use(response => {
                 error.message = '请求超时';
                 break;
             case 500:
-                error.message = '服务器端出错';
+                error.message = `${error.response.data}`;
                 break;
             case 501:
                 error.message = '网络未实现';

@@ -36,7 +36,7 @@ function ListenerListPage(props) {
                     return p.service_config.routes.map((item) => ({
                         "port": p.listen_port,
                         "apiServiceId":p.api_service_id,
-                        "type": "HTTP",
+                        "type": p.service_config.server_type,
                         "pathPrefix": item.matcher.prefix,
                         "routeId": item.route_id
                     }));
