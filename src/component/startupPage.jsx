@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Button, Checkbox, Form, Input, Col, Row } from 'antd';
+import React, { useState } from 'react'
+import { Button, Form, Input } from 'antd';
 
-import { withRouter } from 'react-router-dom'
 
 import styled from 'styled-components'
 
-import ReactECharts from 'echarts-for-react';
 
 const LineDiv = styled.div`
 position: fixed; /* or absolute */

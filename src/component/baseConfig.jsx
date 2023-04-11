@@ -49,17 +49,13 @@ function BaseConfig(props) {
                 }}
                 options={[
                     {
-                        value: 'TEXT',
+                        value: 'Text',
                         label: 'Text',
                     },
                     {
-                        value: 'REGEX',
+                        value: 'Regex',
                         label: 'Regex',
                     },
-                    // {
-                    //     value: 'SPLIT',
-                    //     label: 'Split',
-                    // },
 
                 ]}
             />
@@ -206,7 +202,7 @@ function BaseConfig(props) {
     });
     const addRowButtonClick = () => {
         const key = CommonUtils.guid();
-        const defaultRoute = { endpoint: "http://192.168.0.1:4450", key: key, weight: 100, headerkey: "user-agent", headerValueType: "TEXT", headerValueMatch: "test" };
+        const defaultRoute = { endpoint: "http://192.168.0.1:4450", key: key, weight: 100, headerkey: "user-agent", headerValueType: "Text", headerValueMatch: "test" };
         const oldData = props.baseConfigData?.tableData ? props.baseConfigData?.tableData : [];
         const newTableData = [...oldData, defaultRoute];
         props.setBaseConfigData(prevData => ({
@@ -258,8 +254,12 @@ function BaseConfig(props) {
             ...prevData,
             serverType: value
         }))
-
-        // setRouteAlgorighm(value);
+    };
+    const handleCertificateSourceOnChange = (value) => {
+        props.setBaseConfigData(prevData => ({
+            ...prevData,
+            certificateSource: value
+        }))
     };
     const onFinish = (values) => {
         console.log(values);
@@ -278,6 +278,18 @@ function BaseConfig(props) {
             keyPerm: e.target.value
         }))
     }
+    const handleMailNameInputChange = (e) => {
+        props.setBaseConfigData(prevData => ({
+            ...prevData,
+            mailName: e.target.value
+        }))
+    }
+    const handleDomainNameInputChange = (e) => {
+        props.setBaseConfigData(prevData => ({
+            ...prevData,
+            domainName: e.target.value
+        }))
+    }
     const handleCertPermInputChange = (e) => {
         props.setBaseConfigData(prevData => ({
             ...prevData,
@@ -289,6 +301,105 @@ function BaseConfig(props) {
             ...prevData,
             prefix: e.target.value
         }))
+    }
+    const certificateSource = () => {
+        if (props.baseConfigData.isCreate){
+            return; 
+        }
+        return (
+            <>
+             {
+                   (props.baseConfigData?.serverType === "Https") ?
+                        <Form.Item
+                            name="sertificateSource"
+                            label="Certificate Source"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+
+                            <Select
+                                placeholder="Select the Certificate Source!"
+                                onChange={handleCertificateSourceOnChange}
+                                allowClear
+                            >
+                                <Option value="letsencrypt">Letsencrypt</Option>
+                                <Option value="manual">Manual</Option>
+
+                            </Select>
+
+                        </Form.Item>:<></> 
+                }
+                {
+                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "manual") ?
+                        <Form.Item
+                            name="certPerm"
+                            label="Cert Perm"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+                            <TextArea autoSize={{
+                                minRows: 2,
+                                maxRows: 2,
+                            }} onChange={handleCertPermInputChange} />
+
+                        </Form.Item> : <></>
+                }
+                {
+                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "manual") ?
+                    <Form.Item
+                            name="keyPerm"
+                            label="Key Perm"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+                            <TextArea autoSize={{
+                                minRows: 2,
+                                maxRows: 2,
+                            }} onChange={handleKeyPermInputChange} />
+
+                        </Form.Item> : <></>
+                }
+                {
+                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "letsencrypt") ?
+                        <Form.Item
+                            name="mailName"
+                            label="Mail Name"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+                            <Input  onChange={handleMailNameInputChange} />
+
+                        </Form.Item> : <></>
+                }
+                {
+                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "letsencrypt") ?
+                    <Form.Item
+                            name="domainName"
+                            label="Domain Name"
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                        >
+                            <Input  onChange={handleDomainNameInputChange} />
+
+                        </Form.Item> : <></>
+                }
+            </>
+        );
     }
     return (
         <div style={{ padding: 20 }}>
@@ -308,63 +419,32 @@ function BaseConfig(props) {
                     }
                 ]}
             >
-                { props.baseConfigData.isCreate ?<></>:
-                <Form.Item
-                    name="serverType"
-                    label="Server Type"
-                    rules={[
-                        {
-                            required: true,
-                        },
-                    ]}
-                >
-
-                    <Select
-                        placeholder="Select the server type!"
-                        onChange={handleServerTypeOnChange}
-                        allowClear
-                    >
-                        <Option value="HTTP">HTTP</Option>
-                        <Option value="HTTPS">HTTPS</Option>
-
-                    </Select>
-
-                </Form.Item>}
                 {
-                    (props.baseConfigData?.serverType === "HTTPS") ?
+                    props.baseConfigData.isCreate ? <></> :
                         <Form.Item
-                            name="certPerm"
-                            label="Cert Perm"
+                            name="serverType"
+                            label="Server Type"
                             rules={[
                                 {
                                     required: true,
                                 },
                             ]}
                         >
-                            <TextArea autoSize={{
-                                minRows: 2,
-                                maxRows: 2,
-                            }} onChange={handleCertPermInputChange} />
 
-                        </Form.Item> : <></>
+                            <Select
+                                placeholder="Select the server type!"
+                                onChange={handleServerTypeOnChange}
+                                allowClear
+                            >
+                                <Option value="Http">HTTP</Option>
+                                <Option value="Https">HTTPS</Option>
+
+                            </Select>
+
+                        </Form.Item>
                 }
                 {
-                    (props.baseConfigData?.serverType === "HTTPS") ?
-                        <Form.Item
-                            name="keyPerm"
-                            label="Key Perm"
-                            rules={[
-                                {
-                                    required: true,
-                                },
-                            ]}
-                        >
-                            <TextArea autoSize={{
-                                minRows: 2,
-                                maxRows: 2,
-                            }} onChange={handleKeyPermInputChange} />
-
-                        </Form.Item> : <></>
+                    certificateSource()
                 }
                 {
                     props.baseConfigData.isCreate ? <></> :

@@ -56,13 +56,12 @@ function ListenerListPage(props) {
         history.push('/configPage?apiServiceId=' + apiServiceId + "&routeId=" + routeId);
     }
     const handleDeleteOnClick = (record) => {
-        const { apiServiceId,routeId } = record
-        let { history } = props;
+        const { routeId } = record
         Request.get("/appConfig").then(res => {
             if (res.data.response_code === 0) {
                 const apiConfigs = res.data.response_object.api_service_config;
                 const newApiConfigs=apiConfigs.map(item=>{
-                    const newRoutes=item.service_config.routes.filter(route=>route.route_id!=routeId);
+                    const newRoutes=item.service_config.routes.filter(route=>route.route_id!==routeId);
                     if(newRoutes.length>0){
                         item.service_config.routes=newRoutes;
                         return item;

@@ -1,9 +1,8 @@
-import  React,  { useState, useEffect }from 'react';
+import  React,  { useState }from 'react';
 import useLocalStorage from "use-local-storage";
 import StartupPage from "./component/startupPage"
 import './App.css';
 import router from './component/routerMap'
-import Request from './utils/axiosUtils'
 import CommonUtils from "./utils/commonUtils";
 import {  Row, Col } from 'antd';
 import {
