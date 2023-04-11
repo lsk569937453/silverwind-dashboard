@@ -1,7 +1,4 @@
 import axios from 'axios'; // 引入axios
-import lodash from 'lodash';
-
-
 var Request = axios.create(
     {
 
@@ -36,7 +33,7 @@ Request.interceptors.response.use(response => {
         return Promise.reject(message);
     }
 
-    let { resCode, message } = data;
+    let { resCode } = data;
 
     if (resCode===-2) {
         let message = 'token不合法或者已经过期';

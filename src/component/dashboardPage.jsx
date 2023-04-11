@@ -1,5 +1,5 @@
-import React,{ useState, useEffect } from 'react'
-import { Row, Col,Input,Button } from 'antd';
+import React from 'react'
+import { Row, Col } from 'antd';
 
 import { withRouter } from 'react-router-dom'
 

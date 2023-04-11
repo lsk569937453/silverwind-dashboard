@@ -11,7 +11,7 @@ import CommonUtils from '../utils/commonUtils'
 function AllowDenyList(props) {
     // const [allowDenyList, setAllowDenyList] = useState([]);
     const [ipInput, setIpInput] = useState("");
-    const [allowDenyType, setAllowDenyType] = useState("ALLOW");
+    const [allowDenyType, setAllowDenyType] = useState("Allow");
     const [ipInputEnable, setIpInputEnable] = useState(true);
 
     const handleDelAllowDenyList = (key) => {
@@ -53,7 +53,7 @@ function AllowDenyList(props) {
     const handleAddAllowDenyList = () => {
 
         let flag = false;
-        if (allowDenyType === "ALLOW" || allowDenyType === "DENY") {
+        if (allowDenyType === "Allow" || allowDenyType === "Deny") {
             flag = true;
         }
         if (flag) {
@@ -64,9 +64,9 @@ function AllowDenyList(props) {
             }
         }
         let allowDenyTypeLabel=allowDenyType;
-        if(allowDenyTypeLabel==="ALLOWALL"){
+        if(allowDenyTypeLabel==="AllowAll"){
             allowDenyTypeLabel="ALLOW-ALL";
-        }else if(allowDenyTypeLabel==="DENYALL"){
+        }else if(allowDenyTypeLabel==="DenyAll"){
             allowDenyTypeLabel="DENY-ALL";
         }
         const key = CommonUtils.guid();
@@ -89,7 +89,7 @@ function AllowDenyList(props) {
         setIpInput("");
     };
     const handleAllowDenyTypeOptionOnChange = (value) => {
-        if (value === "ALLOWALL" || value === "DENYALL") {
+        if (value === "AllowAll" || value === "DenyAll") {
             setIpInputEnable(false);
         } else {
             setIpInputEnable(true);
@@ -99,19 +99,19 @@ function AllowDenyList(props) {
     const allowDenyOption = () => {
         return [
             {
-                value: 'ALLOW',
+                value: 'Allow',
                 label: 'ALLOW',
             },
             {
-                value: 'DENY',
+                value: 'Deny',
                 label: 'DENY',
             },
             {
-                value: 'ALLOWALL',
+                value: 'AllowAll',
                 label: 'ALLOW-ALL',
             },
             {
-                value: 'DENYALL',
+                value: 'DenyAll',
                 label: 'DENY-ALL',
             },
         ];
