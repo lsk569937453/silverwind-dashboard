@@ -56,35 +56,47 @@ function ListenerListPage(props) {
         history.push('/configPage?apiServiceId=' + apiServiceId + "&routeId=" + routeId);
     }
     const handleDeleteOnClick = (record) => {
-        const { routeId } = record
-        Request.get("/appConfig").then(res => {
+        const { routeId } = record;
+        Request.delete("/route/"+routeId).then(res=>{
             if (res.data.response_code === 0) {
-                const apiConfigs = res.data.response_object.api_service_config;
-                const newApiConfigs=apiConfigs.map(item=>{
-                    const newRoutes=item.service_config.routes.filter(route=>route.route_id!==routeId);
-                    if(newRoutes.length>0){
-                        item.service_config.routes=newRoutes;
-                        return item;
-                    }else{
-                        return undefined;
+                message.info({
+                    content: 'Delete route successfully!',
+                    duration: 3,
+                    onClose: () => {
+                        window.location.reload();
+
                     }
-                }).filter(item=>item!==undefined);
-
-    
-    
-                Request.post("/appConfig", newApiConfigs).then(res => {
-                    message.info({
-                        content: 'Delete route successfully!',
-                        duration: 3,
-                        onClose: () => {
-                            window.location.reload();
-
-                        }
-                      });
-                });
-    
+                  });
             }
         });
+        // Request.get("/appConfig").then(res => {
+        //     if (res.data.response_code === 0) {
+        //         const apiConfigs = res.data.response_object.api_service_config;
+        //         const newApiConfigs=apiConfigs.map(item=>{
+        //             const newRoutes=item.service_config.routes.filter(route=>route.route_id!==routeId);
+        //             if(newRoutes.length>0){
+        //                 item.service_config.routes=newRoutes;
+        //                 return item;
+        //             }else{
+        //                 return undefined;
+        //             }
+        //         }).filter(item=>item!==undefined);
+
+    
+    
+        //         Request.post("/appConfig", newApiConfigs).then(res => {
+        //             message.info({
+        //                 content: 'Delete route successfully!',
+        //                 duration: 3,
+        //                 onClose: () => {
+        //                     window.location.reload();
+
+        //                 }
+        //               });
+        //         });
+    
+        //     }
+        // });
     }
     const columns = [
         {

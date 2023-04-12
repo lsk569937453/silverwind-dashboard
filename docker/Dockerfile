@@ -1,4 +1,4 @@
-FROM lsk569937453/silverwind:0.0.4
+FROM lsk569937453/silverwind:0.0.6
 COPY app_config.yaml /tmp/app_config.yaml
 COPY build /tmp/build
 RUN chmod go+r /tmp/silverwind
