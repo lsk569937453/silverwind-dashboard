@@ -374,12 +374,12 @@ function ConfigPage(props) {
 
         let cert_str = baseConfigData.serverType === "Https" ? baseConfigData.certPerm : null;
         let key_str = baseConfigData.serverType === "Https" ? baseConfigData.keyPerm : null;
+        setLoading(true);
         if (baseConfigData.serverType === "Https" && baseConfigData.certificateSource === "letsencrypt") {
             let requestData = {
                 "mail_name": baseConfigData.mailName,
                 "domain_name": baseConfigData.domainName,
             };
-            setLoading(true);
             const data = await Request.post("/letsEncryptCertificate", requestData).then(res => {
                 if (res.data?.response_code === 0) {
                     const { key_perm, certificate_perm } = res.data.response_object;
@@ -389,12 +389,12 @@ function ConfigPage(props) {
 
                 return undefined;
             });
-            setLoading(false);
 
             if (!data) {
+                setLoading(false);
                 message.error({
                     content: 'Get the certificate of letsEncrypt error,please try agagin or fill the certificate  mannually!',
-                    duration: 3,
+                    duration: 2,
                 });
                 return;
             }
@@ -402,9 +402,6 @@ function ConfigPage(props) {
             cert_str = certPerm;
             key_str = keyPerm;
         }
-
-
-
         const newRoute = createRoute();
         const newServiceConfig = {
             "listen_port": baseConfigData.port,
@@ -435,19 +432,29 @@ function ConfigPage(props) {
 
 
                 Request.post("/appConfig", newApiConfigs).then(res => {
-                    message.info({
-                        content: 'Save listener successfully!',
-                        duration: 3,
-                        onClose: () => {
-                            let { history } = props;
-                            history.push('/listenerlist');
-                        }
-                    });
+                    const delay = 2000;
+                    const timeoutId = setTimeout(() => {
+                        setLoading(false);
+                        message.info({
+                            content: 'Save listener successfully!',
+                            duration: 1,
+                            onClose: () => {
+                                let { history } = props;
+                                history.push('/listenerlist');
+                            }
+                        });
+                    }, delay);
+                    
                 }).catch(error => {
-                    message.error({
-                        content: 'Save listener error,the error is ' + error.message,
-                        duration: 3,
-                    });
+                    const delay = 2000;
+                    setTimeout(() => {
+                        setLoading(false);
+                        message.error({
+                            content: 'Save listener error,the error is ' + error.message,
+                            duration: 3,
+                        });
+                    }, delay);
+                   
                 });
 
             }
@@ -505,26 +512,9 @@ function ConfigPage(props) {
     }
     const updateRouteByRouteId = () => {
         const newBaseRoute = createRoute();
-        Request.get("/appConfig").then(res => {
+        Request.put("/route", newBaseRoute).then(res => {
             if (res.data.response_code === 0) {
-                let apiConfigs = res.data.response_object.api_service_config;
-                let newApiConfigs = apiConfigs.map(config => {
-                    if (config.api_service_id === apiServiceId) {
-                        config.service_config.routes = config.service_config.routes.map(item => {
-                            if (item.route_id === routeId) {
-                                return newBaseRoute;
-                            }
-                            return item;
-                        });
-                    }
-                    return config;
-                });
-
-
-                Request.post("/appConfig", newApiConfigs).then(res => {
-                    message.info("Save listener successfully!");
-                });
-
+                message.info("Save listener successfully!");
             }
         });
     }
