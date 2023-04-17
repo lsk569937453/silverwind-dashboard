@@ -302,6 +302,9 @@ function BaseConfig(props) {
             prefix: e.target.value
         }))
     }
+    const isTls=()=>{
+        return (props.baseConfigData?.serverType === "Https")||(props.baseConfigData?.serverType === "Http2Tls");
+    }
     const certificateSource = () => {
         if (props.baseConfigData.isCreate){
             return; 
@@ -309,7 +312,7 @@ function BaseConfig(props) {
         return (
             <>
              {
-                   (props.baseConfigData?.serverType === "Https") ?
+                  isTls() ?
                         <Form.Item
                             name="sertificateSource"
                             label="Certificate Source"
@@ -333,7 +336,7 @@ function BaseConfig(props) {
                         </Form.Item>:<></> 
                 }
                 {
-                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "manual") ?
+                    isTls()&&(props.baseConfigData?.certificateSource === "manual") ?
                         <Form.Item
                             name="certPerm"
                             label="Cert Perm"
@@ -351,7 +354,7 @@ function BaseConfig(props) {
                         </Form.Item> : <></>
                 }
                 {
-                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "manual") ?
+                   isTls()&&(props.baseConfigData?.certificateSource === "manual") ?
                     <Form.Item
                             name="keyPerm"
                             label="Key Perm"
@@ -369,7 +372,7 @@ function BaseConfig(props) {
                         </Form.Item> : <></>
                 }
                 {
-                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "letsencrypt") ?
+                   isTls()&&(props.baseConfigData?.certificateSource === "letsencrypt") ?
                         <Form.Item
                             name="mailName"
                             label="Mail Name"
@@ -384,7 +387,7 @@ function BaseConfig(props) {
                         </Form.Item> : <></>
                 }
                 {
-                    (props.baseConfigData?.serverType === "Https")&&(props.baseConfigData?.certificateSource === "letsencrypt") ?
+                   isTls()&&(props.baseConfigData?.certificateSource === "letsencrypt") ?
                     <Form.Item
                             name="domainName"
                             label="Domain Name"
@@ -438,6 +441,8 @@ function BaseConfig(props) {
                             >
                                 <Option value="Http">HTTP</Option>
                                 <Option value="Https">HTTPS</Option>
+                                <Option value="Http2">HTTP2</Option>
+                                <Option value="Http2Tls">HTTP2TLS</Option>
 
                             </Select>
 
