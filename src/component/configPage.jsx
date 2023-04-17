@@ -236,31 +236,33 @@ function ConfigPage(props) {
             message.error('Please select the server type!');
             return false;
         }
-        if (baseConfigData.serverType === "HTTPS") {
-            if (!baseConfigData.certificateSource) {
-                message.error('Please select the certificateSource!');
-            }
-            if (baseConfigData.certificateSource === "manual") {
-                if (!baseConfigData.certPerm) {
-                    message.error('Please fill the cert perm!');
-                    return false;
+        if (!baseConfigData.isCreate) {
+            if (baseConfigData.serverType === "Https" || baseConfigData.serverType === "Http2Tls") {
+                if (!baseConfigData.certificateSource) {
+                    message.error('Please select the certificateSource!');
                 }
-                if (!baseConfigData.keyPerm) {
-                    message.error('Please fill the key perm!');
-                    return false;
+                if (baseConfigData.certificateSource === "manual") {
+                    if (!baseConfigData.certPerm) {
+                        message.error('Please fill the cert perm!');
+                        return false;
+                    }
+                    if (!baseConfigData.keyPerm) {
+                        message.error('Please fill the key perm!');
+                        return false;
+                    }
                 }
-            }
-            if (baseConfigData.certificateSource === "letsencrypt") {
-                if (!baseConfigData.mailName) {
-                    message.error('Please fill the mail name!');
-                    return false;
+                if (baseConfigData.certificateSource === "letsencrypt") {
+                    if (!baseConfigData.mailName) {
+                        message.error('Please fill the mail name!');
+                        return false;
+                    }
+                    if (!baseConfigData.domainName) {
+                        message.error('Please fill the domain name!');
+                        return false;
+                    }
                 }
-                if (!baseConfigData.domainName) {
-                    message.error('Please fill the domain name!');
-                    return false;
-                }
-            }
 
+            }
         }
         if (!baseConfigData.port) {
             message.error('Please fill the port!');
@@ -370,12 +372,15 @@ function ConfigPage(props) {
         return true;
 
     }
+    const isTls = () => {
+        return baseConfigData.serverType === "Https" || baseConfigData.serverType === "Http2Tls";
+    }
     const createApiServiceConfigOrAddRoute = async () => {
 
-        let cert_str = baseConfigData.serverType === "Https" ? baseConfigData.certPerm : null;
-        let key_str = baseConfigData.serverType === "Https" ? baseConfigData.keyPerm : null;
+        let cert_str = isTls() ? baseConfigData.certPerm : null;
+        let key_str = isTls() ? baseConfigData.keyPerm : null;
         setLoading(true);
-        if (baseConfigData.serverType === "Https" && baseConfigData.certificateSource === "letsencrypt") {
+        if (isTls() && baseConfigData.certificateSource === "letsencrypt") {
             let requestData = {
                 "mail_name": baseConfigData.mailName,
                 "domain_name": baseConfigData.domainName,
@@ -414,50 +419,30 @@ function ConfigPage(props) {
                 ]
             }
         };
-        Request.get("/appConfig").then(res => {
-            if (res.data.response_code === 0) {
-                const apiConfigs = res.data.response_object.api_service_config;
-                const portIsContained = apiConfigs.some(item => item.listen_port === baseConfigData.port);
-                let newApiConfigs = {};
-                if (portIsContained) {
-                    newApiConfigs = apiConfigs.map(config => {
-                        if (config.listen_port === baseConfigData.port) {
-                            config.service_config.routes = [...config.service_config.routes, newRoute];
-                        }
-                        return config;
-                    });
-                } else {
-                    newApiConfigs = [...apiConfigs, newServiceConfig];
-                }
-
-
-                Request.post("/appConfig", newApiConfigs).then(res => {
-                    const delay = 2000;
-                    const timeoutId = setTimeout(() => {
-                        setLoading(false);
-                        message.info({
-                            content: 'Save listener successfully!',
-                            duration: 1,
-                            onClose: () => {
-                                let { history } = props;
-                                history.push('/listenerlist');
-                            }
-                        });
-                    }, delay);
-                    
-                }).catch(error => {
-                    const delay = 2000;
-                    setTimeout(() => {
-                        setLoading(false);
-                        message.error({
-                            content: 'Save listener error,the error is ' + error.message,
-                            duration: 3,
-                        });
-                    }, delay);
-                   
+        Request.post("/appConfig", newServiceConfig).then(res => {
+            const delay = 2000;
+            const timeoutId = setTimeout(() => {
+                setLoading(false);
+                message.info({
+                    content: 'Save listener successfully!',
+                    duration: 1,
+                    onClose: () => {
+                        let { history } = props;
+                        history.push('/listenerlist');
+                    }
                 });
+            }, delay);
 
-            }
+        }).catch(error => {
+            const delay = 2000;
+            setTimeout(() => {
+                setLoading(false);
+                message.error({
+                    content: 'Save listener error,the error is ' + error.message,
+                    duration: 3,
+                });
+            }, delay);
+
         });
     };
 
@@ -485,7 +470,7 @@ function ConfigPage(props) {
             "host_name": null,
             "matcher": {
                 "prefix": baseConfigData.prefix,
-                "prefix_rewrite": "ssss"
+                "prefix_rewrite": "/"
             },
             "anomaly_detection": collectAnomalyDetectionData(),
             "allow_deny_list": collectAllowDenyData(),
